@@ -55,7 +55,7 @@ export function sheetHTML(c,o){
     (m?`<div class="row"><button class="btn" data-act="skill-add">+ Nova habilidade</button><button class="btn" data-act="skill-reset">Restaurar todos os usos</button></div>`:'');
   }
   if(tab==='inv'){
-    body=`<div class="row" style="justify-content:space-between"><p class="hint">${m?'Quantidades, estado e observações de cada item.':'🔒 O inventário é controlado pelo mestre.'}</p>${m?'<button class="btn gold" data-act="item-add">+ Adicionar item</button>':''}</div>`+
+    body=`<div class="row" style="justify-content:space-between">${m?'<p class="hint">Quantidades, estado e observações de cada item.</p>':''}${m?'<button class="btn gold" data-act="item-add">+ Adicionar item</button>':''}</div>`+
     ((c.items||[]).map(it=>`<div class="item"><label class="field">Item<input data-item="name" data-id="${esc(it.id)}" value="${esc(it.name)}" maxlength="160" ${m?'':'disabled'}></label><label class="field">Qtd.<input type="number" min="0" max="99999" data-item="qty" data-id="${esc(it.id)}" value="${Number(it.qty)||0}" ${m?'':'disabled'}></label><label class="field">Estado<select data-item="used" data-id="${esc(it.id)}" ${m?'':'disabled'}><option value="0"${it.used?'':' selected'}>Disponível</option><option value="1"${it.used?' selected':''}>Utilizado</option></select></label>${m?`<button class="btn sm danger" data-itemdel="${esc(it.id)}">Remover</button>`:'<span></span>'}<label class="field notes">Observações<input data-item="notes" data-id="${esc(it.id)}" value="${esc(it.notes)}" maxlength="4000" ${m?'':'disabled'}></label></div>`).join('')||'<p class="empty">Inventário vazio.</p>');
   }
   if(tab==='hist'||tab==='notes'){
