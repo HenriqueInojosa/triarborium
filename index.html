@@ -805,7 +805,7 @@ function wireSheet(el,ctx){
   });
   el.addEventListener('change',async e=>{
     const x=ctx(),t=e.target;if(!x||!x.c||!x.m||!t.matches('[data-portrait]'))return;const f=t.files[0];t.value='';if(!f)return;
-    try{const r=await assets.upload(f);write(x.col,x.c.id,{portrait:r.id});toast('Retrato atualizado.');x.rerender(true)}catch(err){toast('Não foi possível enviar o retrato ('+(err&&err.code||'erro')+').')}
+    try{const r=await assets.upload(f);write(x.col,x.c.id,{portrait:r.id});if(x.col==='mnpcs'&&(ov().npcs||[]).some(n=>n.id===x.c.id)){setOv({npcs:(ov().npcs||[]).map(n=>n.id===x.c.id?{...n,portrait:r.id}:n)});renderLive()}toast('Retrato atualizado.');x.rerender(true)}catch(err){toast('Não foi possível enviar o retrato ('+(err&&err.code||'erro')+').')}
   });
   el.addEventListener('submit',async e=>{
     const x=ctx();if(!x||!x.c||!x.m||!e.target.matches('[data-fxform]'))return;e.preventDefault();
