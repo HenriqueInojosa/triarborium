@@ -1450,11 +1450,13 @@ function watchRolls(){
   if(!db||obsMode||watchRolls.on)return;watchRolls.on=true;
   db.collection('rolls').orderBy('at','desc').limit(40).onSnapshot(s=>{
     const list=s.docs.map(d=>({id:d.id,...d.data()}));rollsErr='';
+    if(rollsSeen&&unlocked){rollsSincePrune+=list.filter(r=>!rollsSeen.has(r.id)).length;if(rollsSincePrune>=20){rollsSincePrune=0;pruneRolls()}}
     if(rollsSeen)for(const r of list)if(!rollsSeen.has(r.id)&&num(r.at)>Date.now()-20000){if(!freshIds.has(r.id))markFresh(r.id);announce(r)}
     rollsSeen=new Set(list.map(r=>r.id));rolls=list;renderDice();
   },e=>{rollsErr=e&&e.code==='invalid_argument'?'perm':'net';renderDice()});
 }
 /* the master's device keeps the table small: only the newest 60 rolls survive */
+let rollsSincePrune=0;
 async function pruneRolls(){try{const s=await db.collection('rolls').orderBy('at','desc').get();for(const d of s.docs.slice(60))await db.collection('rolls').doc(d.id).delete()}catch(e){}}
 async function clearRolls(){
   try{const s=await db.collection('rolls').get();await Promise.all(s.docs.map(d=>db.collection('rolls').doc(d.id).delete()));localRolls=[];toast('Mesa de dados limpa.')}
