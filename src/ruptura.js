@@ -3,7 +3,7 @@ import { clamp, toast } from './util.js';
 import { S } from './estado.js';
 import { sanOf } from './imagens.js';
 import { write } from './banco.js';
-import { renderMyHud, renderRoster } from './jogador.js';
+import { combatOn, renderMyHud, renderRoster } from './jogador.js';
 import { canRollFor, doRoll, num, rollerIdentity } from './dados.js';
 
 /* ---------- rupture: sanity at 0. Each turn roll 1d20: 10+ success, under 10 failure.
@@ -12,7 +12,7 @@ const ruptOf=c=>{const r=(c&&c.rupture)||{};return{s:clamp(r.s||0,0,3),f:clamp(r
 export const isDead=c=>{if(!c)return false;if(c.rupture!==undefined)return ruptOf(c).dead;const p=typeof S.pub!=='undefined'&&S.pub.find(x=>x.id===c.id);return !!p&&ruptOf(p).dead};
 export function ruptHTML(c,m,R){
   const r=ruptOf(c),marks=(n,k)=>Array.from({length:3},(_,i)=>`<i class="${k}${i<n?' on':''}"></i>`).join('');
-  return `<div class="rupt${r.dead?' dead':''}"><div class="rupt-head"><b>${r.dead?'☠ Morto':'Em ruptura'}</b><span class="hint">${r.dead?'Três falhas no teste de ruptura.':'A cada turno, role 1d20: 10 ou mais é sucesso, abaixo de 10 é falha. 3 sucessos: volta com 1 de sanidade. 3 falhas: morre. 20 natural volta na hora; 1 natural conta 2 falhas.'}</span></div>
+  return `<div class="rupt${r.dead?' dead':''}"><div class="rupt-head"><b>${r.dead?'☠ Morto':'Em ruptura'}</b><span class="hint">${r.dead?'Três falhas no teste de ruptura.':'A cada turno, role 1d20 (em combate, só no seu turno): 10 ou mais é sucesso, abaixo de 10 é falha. 3 sucessos: volta com 1 de sanidade. 3 falhas: morre. 20 natural volta na hora; 1 natural conta 2 falhas.'}</span></div>
     ${r.dead?'':`<div class="rupt-marks"><span class="ok">Sucessos</span>${marks(r.s,'ok')}<span class="bad">Falhas</span>${marks(r.f,'bad')}</div>`}
     <div class="row">${!r.dead&&R?'<button class="btn sm gold" data-rupt-roll>🎲 Teste de ruptura (1d20)</button>':''}${m?(r.dead?'<button class="btn sm" data-rupt="revive">Reviver com 1 de sanidade</button>':'<button class="btn sm" data-rupt="s">+ Sucesso</button><button class="btn sm" data-rupt="f">+ Falha</button><button class="btn sm" data-rupt="reset">Zerar</button>'):''}</div></div>`;
 }
@@ -29,9 +29,16 @@ export function applyRupt(col,c,ev){
   if(!S.unlocked&&col==='chars'){const pp=S.pub.find(x=>x.id===c.id);if(pp)Object.assign(pp,patch);S.db.collection('public').doc(c.id).update(patch).catch(()=>{})}
   if(msg)toast(msg);renderRoster();renderMyHud();
 }
+/* em combate (e com o personagem na iniciativa), o jogador só rola no próprio turno; fora de combate é livre */
+function myTurnOrNoCombat(c){
+  const ini=S.live.initiative||{};if(!combatOn(ini))return true;
+  const ents=ini.entries||[],i=ents.findIndex(e=>e.ref===c.id);if(i<0)return true;
+  return i===Math.min(ini.turn||0,ents.length-1);
+}
 export async function ruptureRoll(col,c){
   if(!canRollFor(col,c)){toast('Só o dono do personagem e o mestre rolam por esta ficha.');return}
   if(ruptOf(c).dead||sanOf(c)>0)return;
+  if(!S.unlocked&&!myTurnOrNoCombat(c)){toast('Em combate, o teste de ruptura só pode ser rolado no seu turno.');return}
   const doc=await doRoll({groups:[{n:1,s:20,neg:false}],flat:0},'Teste de ruptura',rollerIdentity(c,col),{noAdv:true});if(!doc)return;
   const v=num(doc.groups[0].r[0]);
   /* let the die land before the verdict shows */
