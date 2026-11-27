@@ -427,6 +427,72 @@ html.obs .shell,html.obs .toast{display:none!important}
 @keyframes breath{50%{filter:brightness(1.15)}}
 @keyframes frameGleam{0%,100%{filter:brightness(1)}50%{filter:brightness(1.09)}}
 @media(prefers-reduced-motion:reduce){.hud-illustrated *,.npc-art *,.reference-art *,.hud-illustrated,.npc-art,.reference-art{animation:none!important;transition:none!important}}
+/* ---------- dice table: one felt box per seat, 2D dice that tumble in ---------- */
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.dicetray{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.dt-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dt-head h2{margin:0;font:700 18px var(--display);color:var(--gold2);letter-spacing:.04em}
+.dt-head .warn{color:var(--warn)}
+.seats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;align-items:start}
+.seat{border:1px solid var(--line);border-radius:8px;background:#0d061899;padding:8px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.seat.me{border-color:var(--line2)}
+.seat.crit{border-color:#9ff0b6;box-shadow:0 0 18px #6fc48955}
+.seat.fumble{border-color:#ff6b81;box-shadow:0 0 18px #d6525d55}
+.seat-head{display:flex;align-items:center;gap:8px;min-width:0}
+.seat-head img,.seat-head .ph,.seat-gm{width:28px;height:28px;flex:none;border-radius:50%;object-fit:cover;border:1px solid var(--line2);font-size:13px;background:var(--panel)}
+.seat-gm{display:grid;place-items:center;color:var(--gold);font-size:15px}
+.seat-head span{min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.seat-head b{font:700 13px var(--display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat-head small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat-felt{position:relative;overflow:hidden;min-height:68px;border-radius:6px;border:1px solid #6f512866;background:radial-gradient(ellipse at 50% 40%,#2a1548 0%,#160b28 70%,#0d0618 100%);box-shadow:inset 0 2px 12px #000c;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;padding:8px}
+.seat-idle{font-size:12px;color:var(--muted);font-style:italic}
+.seat-res{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.seat-lbl{font-size:13px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat-total{font:700 26px/1 var(--display);color:var(--gold2);font-variant-numeric:tabular-nums}
+.seat.crit .seat-total{color:#9ff0b6}.seat.fumble .seat-total{color:#ff8a9b}
+.seat-expr{font-size:11.5px;color:var(--muted)}
+.seat-expr em{font-style:normal;font-weight:700;color:var(--gold)}
+.seat.fresh .seat-total{animation:totalIn .45s .7s cubic-bezier(.2,.9,.3,1.4) both}
+.die{position:relative;display:inline-grid;place-items:center;width:44px;height:44px;flex:none}
+.die svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 3px 3px #000a)}
+.die polygon{fill:#2c1748;stroke:#d6ae62;stroke-width:5;stroke-linejoin:round}
+.die b{position:relative;font:700 16px var(--display);color:var(--gold2);font-variant-numeric:tabular-nums}
+.die.d4 b{transform:translateY(20%)}.die.d10 b,.die.d100 b{transform:translateY(-6%)}.die.d100 b{font-size:13px}
+.die.drop{opacity:.35}.die.drop b{text-decoration:line-through}
+.die.crit polygon{fill:#17402a;stroke:#9ff0b6}.die.crit b{color:#d9ffe4}
+.die.fumble polygon{fill:#4a1222;stroke:#ff6b81}.die.fumble b{color:#ffd0d7}
+.die.fresh{animation:dieDrop .8s cubic-bezier(.18,.9,.3,1.1) both;animation-delay:calc(var(--i,0)*70ms)}
+.roller{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.roller-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.roller-row input#dExpr{flex:1;min-width:180px}
+.qty{display:flex;align-items:center;gap:6px}
+.qty b{min-width:22px;text-align:center;font:700 17px var(--display);color:var(--gold2)}
+.dbtns{display:flex;flex-wrap:wrap;gap:6px}
+.dbtn{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 6px 4px;min-width:48px;border:1px solid var(--line);border-radius:6px;background:#120a20;color:var(--muted);font:600 12px var(--body)}
+.dbtn svg{width:26px;height:26px}
+.dbtn polygon{fill:#2c1748;stroke:#d6ae62;stroke-width:6;stroke-linejoin:round}
+.dbtn:hover{border-color:var(--gold);color:var(--gold2)}
+.dbtn:hover polygon{fill:#3a1f5e}
+.field.inline{flex-direction:row;align-items:center;gap:6px}
+.field.inline input{width:72px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{cursor:pointer;background:transparent;border:0;border-right:1px solid var(--line);color:var(--muted);padding:6px 10px;font:500 13px var(--body)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:linear-gradient(180deg,#3a1d5c,#26113f);color:var(--gold2)}
+.dlog summary{cursor:pointer;font-size:13px;color:var(--muted)}
+.dlog ol{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:auto;font-size:13px}
+.dlog li{color:var(--muted)}.dlog li b{color:var(--ink)}.dlog .t{font-size:11px;opacity:.8}
+.stat-roll{cursor:pointer;margin-top:4px;border:1px solid var(--line2);border-radius:99px;background:#1e0f33;color:var(--gold2);font:600 12.5px var(--body);padding:1px 9px;font-variant-numeric:tabular-nums}
+.stat-roll:hover{border-color:var(--gold);background:#3a1f5e}
+.dice-feed{position:fixed;z-index:44;left:max(18px,env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;width:min(300px,calc(100% - 36px));pointer-events:none}
+.dice-pop{pointer-events:auto;background:linear-gradient(170deg,#22123af2,#140a24f2);border:1px solid var(--line2);border-radius:8px;box-shadow:0 12px 34px #000c;padding:8px;animation:popIn .3s ease both;transition:opacity .35s,transform .35s}
+.dice-pop.out{opacity:0;transform:translateX(-20px)}
+.dice-pop .seat{border:0;background:transparent;padding:0}
+@keyframes dieDrop{0%{opacity:0;transform:translate(-60px,-46px) rotate(-420deg) scale(.5)}55%{opacity:1;transform:translate(6px,4px) rotate(18deg) scale(1.08)}78%{transform:translate(-2px,-1px) rotate(-6deg) scale(.97)}100%{opacity:1;transform:none}}
+@keyframes totalIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(max-width:520px){.grid3{grid-template-columns:1fr}.seats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.die.fresh,.seat.fresh .seat-total,.dice-pop{animation:none}}
 </style>
 <script>
 /* Firebase stand-in for the claude.use() calls the page makes: "db" (Firestore) and "auth" (Google / anonymous login) */
@@ -494,6 +560,7 @@ try{
     <div class="livebar" id="livebar"></div>
     <section class="panel sheet" id="playerView" hidden></section>
     <div class="panel playerbar" id="playerBar" hidden></div>
+    <section class="panel dicetray" id="diceTray" hidden aria-label="Mesa de dados"></section>
     <div class="layout" id="sheetLayout">
       <aside class="panel roster" id="rosterPanel" aria-label="Personagens">
         <div class="roster-head"><h2>Jogadores</h2><span class="hint" id="count"></span></div>
@@ -523,6 +590,7 @@ try{
   <footer>Cada jogador vê e edita só a própria ficha; o mestre vê todas. Atributos, CA, PV máximo, limites de uso e efeitos só o mestre altera.</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="dice-feed" id="diceFeed" aria-live="polite"></div>
 <button class="chat-fab" id="chatFab" hidden><span aria-hidden="true">✉</span> <span id="chatFabLabel">Mestre</span><b class="badge" id="chatBadge" hidden></b></button>
 <aside class="chat" id="chat" hidden aria-label="Conversa">
   <header class="chat-head"><div><small id="chatSub">Conversa privada com o mestre</small><h3 id="chatTitle">Mestre</h3></div><button class="btn sm" id="chatClose" aria-label="Fechar conversa">✕</button></header>
@@ -628,10 +696,11 @@ document.addEventListener('focusout',e=>setTimeout(()=>{for(const id in pending)
 function sheetHTML(c,o){
   // o: {col, m (master edits), edit (may edit player fields), tab, notesKey, histKey, npc}
   const {m,edit,tab}=o;
+  const R=canRollFor(o.col,c);
   let body='';
   if(tab==='sheet'){
     const san=clamp(c.sanity??100,0,100),hpMax=Number(c.hpMax)||0;
-    const st=STATS.map(([k,n])=>`<div class="stat"><span>${n}</span>${m?`<input type="number" min="1" max="30" data-master="${k}" value="${Number(c[k])||10}" aria-label="${n}">`:`<b>${Number(c[k])||10}</b>`}<small>${mod(c[k]??10)}</small></div>`).join('');
+    const st=STATS.map(([k,n])=>`<div class="stat"><span>${n}</span>${m?`<input type="number" min="1" max="30" data-master="${k}" value="${Number(c[k])||10}" aria-label="${n}">`:`<b>${Number(c[k])||10}</b>`}${R?`<button class="stat-roll" data-roll-stat="${k}" title="Rolar 1d20 ${mod(c[k]??10)} (${n})">🎲 ${mod(c[k]??10)}</button>`:`<small>${mod(c[k]??10)}</small>`}</div>`).join('');
     const step=(k,v,max)=>!m?`<b class="val" title="Definido pelo mestre">${v}</b>`:`<div class="stepper"><button class="btn sm" data-step="${k}" data-d="-1" ${!edit||v<=0?'disabled':''} aria-label="Diminuir">−</button><span class="val">${v}</span><button class="btn sm" data-step="${k}" data-d="1" ${!edit||v>=max?'disabled':''} aria-label="Aumentar">+</button></div>`;
     const fx=(c.effects||[]).map(e=>`<div class="fx ${e.type==='debuff'?'debuff':''}">${blob(e.image)?`<img src="${blob(e.image)}" alt="">`:''}<span><small>${e.type==='debuff'?'Debuff':'Buff'}</small>${esc(e.label)}</span>${m?`<button class="btn sm" data-fxdel="${esc(e.id)}" aria-label="Remover efeito">×</button>`:''}</div>`).join('');
     body=`<div class="grid2">
@@ -654,11 +723,12 @@ function sheetHTML(c,o){
         ${ui.confirm===c.id?`<div class="confirm">Remover ${esc(c.name)}? Isso não pode ser desfeito. <button class="btn danger" data-act="del-yes">Remover</button><button class="btn" data-act="del-no">Cancelar</button></div>`:`<button class="btn danger" data-act="del">Remover ${o.npc?'NPC':'personagem'}</button>`}</div></section>`:''}`;
   }
   if(tab==='skills'){
-    body=`<p class="hint">Use “Gastar” e “Devolver” durante a cena. ${m?'Como mestre, você também edita nome, dados, descrição e limite.':'O limite de usos é do mestre.'}</p>`+
+    body=`<p class="hint">Use “Gastar” e “Devolver” durante a cena${R?'; 🎲 rola os dados da habilidade já com o modificador':''}. ${m?'Como mestre, você também edita nome, dados, atributo, descrição e limite.':'O limite de usos é do mestre.'}</p>`+
     ((c.skills||[]).map(s=>{const max=clamp(s.maxUses,1,99),left=clamp(s.usesLeft??max,0,max);
+      const rp=R?skillParse(s,c):null,rollBtn=rp?`<button class="btn sm gold" data-roll-skill="${esc(s.id)}" title="Rolar ${esc(s.name||'Habilidade')}">🎲 ${esc(exprOf(rp))}</button>`:'';
       const pips=max<=10?`<span class="pips">${Array.from({length:max},(_,i)=>`<i class="pip${i<left?'':' off'}"></i>`).join('')}</span>`:'';
-      const head=m?`<div class="grid2" style="width:100%"><label class="field">Nome<input data-skill="name" data-id="${esc(s.id)}" value="${esc(s.name)}"></label><div class="grid2"><label class="field">Dados<input data-skill="dice" data-id="${esc(s.id)}" value="${esc(s.dice)}"></label><label class="field">Usos máx.<input type="number" min="1" max="99" data-skill="maxUses" data-id="${esc(s.id)}" value="${max}"></label></div></div>`:`<h5>${esc(s.name||'Habilidade')}${s.dice?`<span class="dice">${esc(s.dice)}</span>`:''}</h5>`;
-      return `<div class="skill"><div class="skill-top">${head}<div class="uses">${pips}<button class="btn sm" data-use="${esc(s.id)}" data-d="-1" ${!edit||left===0?'disabled':''}>− Gastar</button><b>${max>=99?'∞':left+'/'+max}</b><button class="btn sm" data-use="${esc(s.id)}" data-d="1" ${!edit||left===max?'disabled':''}>+ Devolver</button></div></div>
+      const head=m?`<div class="grid2" style="width:100%"><label class="field">Nome<input data-skill="name" data-id="${esc(s.id)}" value="${esc(s.name)}"></label><div class="grid3"><label class="field">Dados<input data-skill="dice" data-id="${esc(s.id)}" value="${esc(s.dice)}" placeholder="1d8+2"></label><label class="field">Atributo<select data-skill="stat" data-id="${esc(s.id)}"><option value="">—</option>${STATS.map(([k,n])=>`<option value="${k}"${s.stat===k?' selected':''}>${n}</option>`).join('')}</select></label><label class="field">Usos máx.<input type="number" min="1" max="99" data-skill="maxUses" data-id="${esc(s.id)}" value="${max}"></label></div></div>`:`<h5>${esc(s.name||'Habilidade')}${s.dice?`<span class="dice">${esc(s.dice)}</span>`:''}</h5>`;
+      return `<div class="skill"><div class="skill-top">${head}<div class="uses">${rollBtn}${pips}<button class="btn sm" data-use="${esc(s.id)}" data-d="-1" ${!edit||left===0?'disabled':''}>− Gastar</button><b>${max>=99?'∞':left+'/'+max}</b><button class="btn sm" data-use="${esc(s.id)}" data-d="1" ${!edit||left===max?'disabled':''}>+ Devolver</button></div></div>
         ${m?`<label class="field">Descrição<textarea rows="3" data-skill="description" data-id="${esc(s.id)}">${esc(s.description)}</textarea></label>`:`<p class="desc">${esc(s.description||'Sem descrição')}</p>`}
         ${o.npc?'':`<label class="field">Observações do jogador<textarea rows="2" data-skill="playerNote" data-id="${esc(s.id)}" ${edit?'':'disabled'} placeholder="Dúvidas, situações de uso…">${esc(s.playerNote)}</textarea></label>`}
         ${m?`<div><button class="btn sm danger" data-skilldel="${esc(s.id)}">Remover habilidade</button></div>`:''}</div>`}).join('')||'<p class="empty">Nenhuma habilidade cadastrada.</p>')+
@@ -686,6 +756,7 @@ function wireSheet(el,ctx){
     const x=ctx();if(!x||!x.c)return;const {col,c}=x;const b=e.target.closest('button');if(!b||(b.type==='submit'&&b.form))return;
     if(b.dataset.tab){x.setTab(b.dataset.tab);x.rerender(true);return}
     if(b.dataset.act==='mine'){ui.mine=c.id===ui.mine?null:c.id;store.set('tri-mine',ui.mine);render();return}
+    if(b.dataset.rollStat||b.dataset.rollSkill){sheetRoll(col,c,b.dataset);return}
     if(!x.edit)return;
     const re=()=>x.rerender(false);
     if((b.dataset.step||b.dataset.san||b.dataset.itemdel||b.dataset.act==='item-add')&&!x.m)return;
@@ -1103,16 +1174,16 @@ async function ensurePublic(){if(!unlocked||!pubLoaded)return;for(const c of dat
 function ownerBox(c){if(!c)return'';const p=pub.find(x=>x.id===c.id);return `<div class="panel playerbar"><span class="hint">${p&&p.owner?`Jogador: <b>${esc(p.ownerName||'?')}</b>`:'Ninguém escolheu este personagem ainda.'}</span>${p&&p.owner?`<button class="btn sm" data-master-release="${esc(c.id)}">Liberar personagem</button>`:''}</div>`}
 async function unlock(pw){
   if(!(await registerMaster(pw))){mkey=null;store.set('tri-mestre',null,sessionStorage);$('pwErr').textContent='O banco não confirmou a senha. Recarregue e tente de novo.';return}
-  unlocked=true;assets=fbAssets;$('gate').hidden=true;$('desk').hidden=false;$('pwErr').textContent='';$('importBox').hidden=false;startMasterChars();startMaster();await decryptAll();render();renderDesk(true)}
+  unlocked=true;assets=fbAssets;$('gate').hidden=true;$('desk').hidden=false;$('pwErr').textContent='';$('importBox').hidden=false;startMasterChars();startMaster();pruneRolls();await decryptAll();render();renderDesk(true)}
 $('lockBtn').addEventListener('click',()=>{if(masterCharsSub){masterCharsSub();masterCharsSub=null}assets=null;closeChat();data.chars=[];mySubId=null;unlocked=false;mkey=null;store.set('tri-mestre',null,sessionStorage);for(const c of MASTER)if(c!=='mnotes')data[c]=[];notesDoc={notes:'',campaigns:[],activeCampaign:''};$('importBox').hidden=true;$('desk').hidden=true;$('gate').hidden=false;$('mbody').innerHTML='';setView('group');render()});
-function setView(v){ui.view=v;$('groupView').hidden=v!=='group';$('masterView').hidden=v!=='master';document.querySelectorAll('#views button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));if(v==='master'&&!unlocked)setTimeout(()=>$('pw').focus(),0);renderPlayer()}
+function setView(v){ui.view=v;$('groupView').hidden=v!=='group';$('masterView').hidden=v!=='master';document.querySelectorAll('#views button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));if(v==='master'&&!unlocked)setTimeout(()=>$('pw').focus(),0);renderPlayer();renderDice()}
 $('views').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b)setView(b.dataset.view)});
 
 /* ---------- import (mestre) ---------- */
 function sniffImage(b){if(b[0]===0x47&&b[1]===0x49)return'image/gif';if(b[0]===0x89&&b[1]===0x50)return'image/png';if(b[0]===0xFF&&b[1]===0xD8)return'image/jpeg';if(b[8]===0x57&&b[9]===0x45)return'image/webp';return null}
 async function uploadDataUri(uri){if(!assets||!uri)return'';const m=/^data:[^;]*;base64,(.*)$/s.exec(uri);if(!m)return'';const bin=atob(m[1]);const bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);const type=sniffImage(bytes);if(!type)return'';return (await assets.upload(new Blob([bytes],{type}),{type})).id}
 const okId=s=>/^[A-Za-z0-9]{1,64}$/.test(s);
-const cleanSkill=s=>{const max=clamp(s.maxUses,1,99);return{id:okId(s.id)?s.id:uid(),name:String(s.name||'Habilidade').slice(0,160),description:String(s.description||'').slice(0,4000),dice:String(s.dice||'').slice(0,60),maxUses:max,usesLeft:clamp(s.usesLeft??max,0,max),playerNote:String(s.playerNote||'').slice(0,4000)}};
+const cleanSkill=s=>{const max=clamp(s.maxUses,1,99);return{id:okId(s.id)?s.id:uid(),name:String(s.name||'Habilidade').slice(0,160),description:String(s.description||'').slice(0,4000),dice:String(s.dice||'').slice(0,60),stat:STATS.some(x=>x[0]===s.stat)?s.stat:'',maxUses:max,usesLeft:clamp(s.usesLeft??max,0,max),playerNote:String(s.playerNote||'').slice(0,4000)}};
 const cleanItem=i=>({id:okId(i.id)?i.id:uid(),name:String(i.name||'Item').slice(0,160),qty:clamp(i.qty,0,99999),used:!!i.used,notes:String(i.notes||'').slice(0,4000)});
 function sheetFields(b){const o={};for(const[k]of STATS)o[k]=clamp(b[k]??10,1,30);o.ac=clamp(b.ac,0,40);o.hpMax=clamp(b.hpMax,0,999);o.hp=clamp(b.hp,0,o.hpMax);o.inspiration=clamp(b.inspiration,0,99);o.sanity=clamp(b.sanity??100,0,100);
   o.skills=(Array.isArray(b.skills)?b.skills:[]).slice(0,100).map(cleanSkill);o.items=(Array.isArray(b.items)?b.items:[]).slice(0,300).map(cleanItem);o.playerNotes=String(b.playerNotes||'').slice(0,60000);o.playerHistory=String(b.playerHistory||'').slice(0,60000);return o}
@@ -1225,8 +1296,182 @@ function obsTabHTML(){
   </div>`;
 }
 
+/* ---------- dice: rolls/<id> in Firestore; each seat (master + every character) has a felt box where its last roll lands ---------- */
+const DIE_SIDES=[4,6,8,10,12,20,100];
+const DIE_SHAPE={4:'50,8 94,88 6,88',6:'12,12 88,12 88,88 12,88',8:'50,4 95,50 50,96 5,50',10:'50,4 94,40 50,96 6,40',12:'50,4 95,36 78,93 22,93 5,36',20:'50,3 93,27 93,73 50,97 7,73 7,27',100:'50,4 94,40 50,96 6,40'};
+const ABBR_STAT={FOR:'str',STR:'str',DES:'dex',DEX:'dex',CON:'con',INT:'int',SAB:'wis',WIS:'wis',CAR:'cha',CHA:'cha'};
+const isStat=k=>STATS.some(x=>x[0]===k);
+const statName=k=>(STATS.find(x=>x[0]===k)||['',''])[1];
+const statMod=(c,k)=>isStat(k)?Math.floor(((Number(c&&c[k])||10)-10)/2):0;
+const num=v=>Math.trunc(Number(v))||0;
+const dropOf=g=>Number.isInteger(g.drop)?g.drop:-1;
+const dieLbl=s=>'d'+(s===100?'%':s);
+const dieSvg=s=>`<svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="${DIE_SHAPE[s]||DIE_SHAPE[6]}"/></svg>`;
+let rolls=[],localRolls=[],rollsSeen=null,rollsErr='';
+const freshIds=new Set();
+const diceUI={n:1,adv:0,bonus:0,expr:'',stat:store.get('tri-dice-stat')||'',hidden:store.get('tri-dice-hidden')==='1',logOpen:false,clearAsk:false};
+
+function rnd(s){const a=new Uint32Array(1),lim=Math.floor(4294967296/s)*s;do crypto.getRandomValues(a);while(a[0]>=lim);return a[0]%s+1}
+
+/* "2d6+3", "1d20 + FOR - 1", "d%": dice, signed numbers and attribute abbreviations; any other text is ignored */
+function parseFormula(str,c){
+  const p={groups:[],flat:0,touched:false};
+  const src=String(str||'').toUpperCase().replace(/\s+/g,'').replace(/D%/g,'D100');
+  const re=/([+-]?)(?:(\d*)D(\d+)|(\d+)|(FOR|STR|DES|DEX|CON|INT|SAB|WIS|CAR|CHA))/g;let m;
+  while((m=re.exec(src))){const sg=m[1]==='-'?-1:1;
+    if(m[3]){if(p.groups.length<6)p.groups.push({n:clamp(m[2]||1,1,20),s:clamp(m[3],2,100),neg:sg<0});p.touched=true}
+    else if(m[4]){if(m[1]){p.flat+=sg*clamp(m[4],0,999);p.touched=true}}
+    else if(m[1]||m.index===0){p.flat+=sg*statMod(c,ABBR_STAT[m[5]]);p.touched=true}}
+  return p;
+}
+const exprOf=p=>(p.groups||[]).map((g,i)=>(g.neg?'-':i?'+':'')+g.n+dieLbl(g.s)).join('')+(p.flat?(p.flat>0?'+':'')+p.flat:'');
+/* a skill rolls its "Dados" plus the chosen attribute's modifier; with only a modifier it becomes a d20 test */
+function skillParse(s,c){
+  const p=parseFormula(s.dice,c);if(isStat(s.stat)){p.flat+=statMod(c,s.stat);p.touched=true}
+  if(!p.groups.length){if(!p.touched)return null;p.groups.push({n:1,s:20,neg:false})}
+  return p;
+}
+/* advantage/disadvantage rolls the first single d20 twice and drops one */
+function makeRoll(p,adv){
+  let total=p.flat,used=0;
+  const groups=p.groups.map(g=>{const r=Array.from({length:g.n},()=>rnd(g.s));let drop=-1;
+    if(adv&&!used&&g.s===20&&g.n===1&&!g.neg){r.push(rnd(20));drop=adv>0?(r[0]>=r[1]?1:0):(r[0]<=r[1]?1:0);used=adv}
+    const sum=r.reduce((a,v,i)=>a+(i===drop?0:v),0);total+=g.neg?-sum:sum;return{s:g.s,r,drop,neg:!!g.neg}});
+  return{groups,total,adv:used};
+}
+function natOf(r){
+  const g=(r.groups||[]).find(g=>num(g.s)===20&&!g.neg&&(g.r||[]).length-(dropOf(g)>=0?1:0)===1);if(!g)return 0;
+  const v=num(g.r.find((_,i)=>i!==dropOf(g)));return v===20?1:v===1?-1:0;
+}
+const breakdown=r=>(r.groups||[]).map((g,i)=>{const d=dropOf(g);return (g.neg?' − ':i?' + ':'')+'['+(g.r||[]).map((v,j)=>j===d?`<s>${num(v)}</s>`:num(v)).join(', ')+']'}).join('')+(num(r.flat)?(num(r.flat)>0?' + ':' − ')+Math.abs(num(r.flat)):'');
+
+const myChar=()=>{const p=myPub();return p?find('chars',p.id)||null:null};
+function canRollFor(col,c){if(!db||!c)return false;if(col==='mnpcs')return unlocked;if(col!=='chars')return false;if(unlocked)return true;const p=myPub();return !!p&&p.id===c.id}
+function rollerIdentity(c,col){
+  if(c&&col==='mnpcs')return{charId:'master',who:String(c.name||'NPC').slice(0,80),from:'master'};
+  if(c&&col==='chars')return{charId:c.id,who:String(c.name||'Personagem').slice(0,80),from:unlocked?'master':'player'};
+  if(unlocked)return{charId:'master',who:'Mestre',from:'master'};
+  const p=myPub();return p?{charId:p.id,who:String(p.name||'Jogador').slice(0,80),from:'player'}:null;
+}
+function markFresh(id){freshIds.add(id);setTimeout(()=>{freshIds.delete(id);renderDice()},2600)}
+async function doRoll(p,label,who){
+  if(!db||!who){toast('Entre com Google e escolha seu personagem para rolar.');return}
+  if(!p.groups.length){toast('A fórmula precisa de dados, ex.: 1d20+3.');return}
+  const res=makeRoll(p,diceUI.adv),id=uid();diceUI.adv=0;
+  const doc={...who,label:String(label||'').slice(0,80),expr:(exprOf(p)+(res.adv>0?' · vantagem':res.adv<0?' · desvantagem':'')).slice(0,80),groups:res.groups,flat:p.flat,total:res.total,uid:me?me.uid:'',at:Date.now()};
+  markFresh(id);
+  if(unlocked&&diceUI.hidden){localRolls=[{id,...doc,secret:true},...localRolls].slice(0,20);announce(localRolls[0]);renderDice();return}
+  try{await db.collection('rolls').doc(id).set(doc)}
+  catch(e){freshIds.delete(id);toast(e&&e.code==='invalid_argument'?'O banco recusou a rolagem: confira se as regras novas do Firestore foram publicadas.':'Não foi possível rolar agora. Tente de novo.')}
+  renderDice();
+}
+/* rolls from the table: "Rolar com" (players) and the bonus apply to every die rolled here */
+function trayRoll(p,label){
+  const c=unlocked?null:myChar(),st=c&&isStat(diceUI.stat)?diceUI.stat:'';
+  if(st){p.flat+=statMod(c,st);label+=' + '+statName(st)}
+  if(diceUI.bonus)p.flat+=diceUI.bonus;
+  doRoll(p,label,rollerIdentity());
+}
+function sheetRoll(col,c,d){
+  if(!canRollFor(col,c)){toast('Só o dono do personagem e o mestre rolam por esta ficha.');return}
+  const who=rollerIdentity(c,col);
+  if(d.rollStat){if(isStat(d.rollStat))doRoll({groups:[{n:1,s:20,neg:false}],flat:statMod(c,d.rollStat)},'Teste de '+statName(d.rollStat),who);return}
+  const s=(c.skills||[]).find(x=>x.id===d.rollSkill),p=s&&skillParse(s,c);if(p)doRoll(p,s.name||'Habilidade',who);
+}
+
+function watchRolls(){
+  if(!db||obsMode||watchRolls.on)return;watchRolls.on=true;
+  db.collection('rolls').orderBy('at','desc').limit(40).onSnapshot(s=>{
+    const list=s.docs.map(d=>({id:d.id,...d.data()}));rollsErr='';
+    if(rollsSeen)for(const r of list)if(!rollsSeen.has(r.id)&&num(r.at)>Date.now()-20000){if(!freshIds.has(r.id))markFresh(r.id);announce(r)}
+    rollsSeen=new Set(list.map(r=>r.id));rolls=list;renderDice();
+  },e=>{rollsErr=e&&e.code==='invalid_argument'?'perm':'net';renderDice()});
+}
+/* the master's device keeps the table small: only the newest 60 rolls survive */
+async function pruneRolls(){try{const s=await db.collection('rolls').orderBy('at','desc').get();for(const d of s.docs.slice(60))await db.collection('rolls').doc(d.id).delete()}catch(e){}}
+async function clearRolls(){
+  try{const s=await db.collection('rolls').get();await Promise.all(s.docs.map(d=>db.collection('rolls').doc(d.id).delete()));localRolls=[];toast('Mesa de dados limpa.')}
+  catch(e){toast('Não foi possível limpar a mesa.')}
+  renderDice();
+}
+
+const seatList=()=>[{id:'master',name:'Mestre'},...pub.map(p=>({id:p.id,name:p.name||'Personagem',portrait:p.portrait,sub:p.ownerName||''}))];
+function diceHTML(r,fresh){
+  let i=0;const n=natOf(r);
+  return (r.groups||[]).slice(0,6).map(g=>{const s=clamp(g.s,2,100),d=dropOf(g);
+    return (g.r||[]).slice(0,21).map((v,j)=>{const val=clamp(v,0,999),kept=j!==d;
+      const cls=['die','d'+s,fresh?'fresh':'',kept?'':'drop',kept&&s===20&&n&&!g.neg?(n>0?'crit':'fumble'):''].filter(Boolean).join(' ');
+      return `<span class="${cls}" style="--i:${i++}" data-s="${s}" data-v="${val}">${dieSvg(s)}<b>${val}</b></span>`}).join('')}).join('');
+}
+function seatHTML(seat,r,mine){
+  const fresh=!!r&&freshIds.has(r.id),n=r?natOf(r):0;
+  const sub=r&&r.who&&r.who!==seat.name?r.who:seat.sub;
+  const head=`<div class="seat-head">${seat.id==='master'?'<span class="seat-gm" aria-hidden="true">♛</span>':pic(seat)}<span><b>${esc(seat.name)}</b>${sub?`<small>${esc(sub)}</small>`:''}</span></div>`;
+  if(!r)return `<div class="seat${mine?' me':''}">${head}<div class="seat-felt"><span class="seat-idle">Nenhuma rolagem</span></div></div>`;
+  return `<div class="seat${mine?' me':''}${fresh?' fresh':''}${n>0?' crit':n<0?' fumble':''}">${head}<div class="seat-felt">${diceHTML(r,fresh)}</div>
+    <div class="seat-res"><span class="seat-lbl" title="${esc(r.label)}">${r.secret?'🔒 ':''}${esc(r.label||r.expr)}</span><b class="seat-total">${num(r.total)}</b></div>
+    <div class="seat-expr">${esc(r.expr)}${n>0?' · <em>Crítico!</em>':n<0?' · <em>Falha crítica</em>':''}</div></div>`;
+}
+function rollerHTML(){
+  if(!rollerIdentity())return '<p class="hint">Entre com Google e escolha seu personagem para rolar.</p>';
+  const c=unlocked?null:myChar();
+  return `<div class="roller">
+    <div class="roller-row"><div class="qty" role="group" aria-label="Quantidade de dados"><button class="btn sm" data-dq="-1" aria-label="Menos um dado" ${diceUI.n<=1?'disabled':''}>−</button><b>${diceUI.n}</b><button class="btn sm" data-dq="1" aria-label="Mais um dado" ${diceUI.n>=20?'disabled':''}>+</button></div>
+      <div class="dbtns">${DIE_SIDES.map(s=>`<button class="dbtn" data-die="${s}" title="Rolar ${diceUI.n}${dieLbl(s)}">${dieSvg(s)}<span>${diceUI.n>1?diceUI.n:''}${dieLbl(s)}</span></button>`).join('')}</div></div>
+    <div class="roller-row">${c?`<label class="field inline">Rolar com<select id="dStat"><option value="">Nada</option>${STATS.map(([k,n])=>`<option value="${k}"${diceUI.stat===k?' selected':''}>${n} (${mod(c[k]??10)})</option>`).join('')}</select></label>`:''}
+      <label class="field inline">Bônus<input id="dBonus" type="number" min="-99" max="99" value="${diceUI.bonus}"></label>
+      <div class="seg" role="group" aria-label="Vantagem no próximo d20">${[[0,'Normal'],[1,'Vantagem'],[-1,'Desvantagem']].map(([v,l])=>`<button type="button" class="${diceUI.adv===v?'on':''}" data-adv="${v}" aria-pressed="${diceUI.adv===v}" title="Vale para o próximo d20">${l}</button>`).join('')}</div>
+      ${unlocked?`<label class="row lbl"><input type="checkbox" id="dHidden"${diceUI.hidden?' checked':''}> Rolagem oculta (só você vê)</label>`:''}</div>
+    <form class="roller-row" id="dForm"><input id="dExpr" value="${esc(diceUI.expr)}" placeholder="Fórmula livre: 2d6+1d4+3, 1d20+FOR…" maxlength="60" aria-label="Fórmula livre"><button class="btn gold">Rolar</button></form></div>`;
+}
+function animateDice(root){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  root.querySelectorAll('.die.fresh').forEach(d=>{const s=num(d.dataset.s)||6,v=d.dataset.v,b=d.querySelector('b'),end=performance.now()+620+num(d.style.getPropertyValue('--i'))*70;
+    const t=setInterval(()=>{if(!d.isConnected||performance.now()>=end){clearInterval(t);b.textContent=v;return}b.textContent=1+Math.floor(Math.random()*s)},55)});
+}
+function trayInView(){const t=$('diceTray');if(!t||t.hidden||$('groupView').hidden)return false;const b=t.getBoundingClientRect();return b.bottom>80&&b.top<innerHeight-80}
+/* a roll that lands while the table is off screen pops up in the corner */
+function announce(r){
+  if(obsMode||trayInView())return;const f=$('diceFeed');if(!f)return;
+  const seat=seatList().find(s=>s.id===r.charId)||{id:String(r.charId||''),name:r.who||'?'};
+  const el=document.createElement('div');el.className='dice-pop';el.style.cursor='pointer';el.title='Abrir a mesa de dados';el.innerHTML=seatHTML(seat,r,false);
+  el.addEventListener('click',()=>{if(ui.view!=='group')setView('group');const t=$('diceTray');if(!t.hidden)t.scrollIntoView({behavior:'smooth',block:'center'})});
+  f.prepend(el);while(f.children.length>3)f.lastElementChild.remove();animateDice(el);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400)},5000);
+}
+function renderDice(){
+  const tray=$('diceTray');if(!tray||obsMode)return;
+  const show=!!db&&!!me&&!document.body.classList.contains('kz-on')&&(unlocked||(!me.anon&&!!myPub()));
+  tray.hidden=!show;if(!show)return;
+  if(!tray.firstElementChild)tray.innerHTML='<div class="dt-head" id="dHead"></div><div class="seats" id="dSeats"></div><div id="dRoller"></div><div id="dLog"></div>';
+  const set=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h}};
+  set($('dHead'),`<h2>Mesa de dados</h2>${rollsErr==='perm'?'<span class="hint warn">O banco bloqueou as rolagens: publique as regras novas do Firestore.</span>':rollsErr?'<span class="hint warn">Sem conexão com a mesa de dados.</span>':''}${unlocked?(diceUI.clearAsk?'<span class="row"><span class="hint">Apagar todas as rolagens?</span><button class="btn sm danger" data-dclear="yes">Apagar</button><button class="btn sm" data-dclear="no">Cancelar</button></span>':'<button class="btn sm" data-dclear="ask">Limpar mesa</button>'):''}`);
+  const all=[...localRolls,...rolls].sort((a,b)=>num(b.at)-num(a.at)),mineId=unlocked?'master':(myPub()||{}).id,box=$('dSeats'),seats=seatList();
+  const keep=new Set(seats.map(s=>s.id));[...box.children].forEach(el=>{if(!keep.has(el.dataset.seat))el.remove()});
+  seats.forEach((s,i)=>{let el=[...box.children].find(x=>x.dataset.seat===s.id);if(!el){el=document.createElement('div');el.dataset.seat=s.id}
+    if(box.children[i]!==el)box.insertBefore(el,box.children[i]||null);
+    const h=seatHTML(s,all.find(r=>r.charId===s.id),s.id===mineId);if(el._h!==h){el._h=h;el.innerHTML=h;animateDice(el)}});
+  const rl=$('dRoller'),rh=rollerHTML();if(rl._h!==rh){rl._h=rh;paint(rl,rh)}
+  set($('dLog'),all.length?`<details class="dlog"${diceUI.logOpen?' open':''}><summary>Histórico (${all.length})</summary><ol>${all.slice(0,40).map(r=>{const n=natOf(r);return `<li><span class="t">${fmtTime(r.at)}</span> <b>${esc(r.who)}</b> · ${r.secret?'🔒 ':''}${esc(r.label||r.expr)}: ${breakdown(r)} = <b>${num(r.total)}</b>${n>0?' ✦ crítico':n<0?' ✖ falha crítica':''}</li>`}).join('')}</ol></details>`:'');
+}
+$('diceTray').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.die){const s=clamp(d.die,2,100);trayRoll({groups:[{n:diceUI.n,s,neg:false}],flat:0},diceUI.n+dieLbl(s));return}
+  if(d.dq){diceUI.n=clamp(diceUI.n+Number(d.dq),1,20);renderDice();return}
+  if(d.adv!==undefined){diceUI.adv=Number(d.adv)||0;renderDice();return}
+  if(d.dclear&&unlocked){diceUI.clearAsk=d.dclear==='ask';if(d.dclear==='yes')clearRolls();renderDice()}
+});
+$('diceTray').addEventListener('change',e=>{const t=e.target;
+  if(t.id==='dStat'){diceUI.stat=isStat(t.value)?t.value:'';store.set('tri-dice-stat',diceUI.stat||null)}
+  else if(t.id==='dHidden'){diceUI.hidden=t.checked;store.set('tri-dice-hidden',t.checked?'1':null)}});
+$('diceTray').addEventListener('input',e=>{const t=e.target;if(t.id==='dBonus')diceUI.bonus=clamp(t.value,-99,99);else if(t.id==='dExpr')diceUI.expr=t.value.slice(0,60)});
+$('diceTray').addEventListener('submit',e=>{if(e.target.id!=='dForm')return;e.preventDefault();
+  const p=parseFormula(diceUI.expr,unlocked?null:myChar());if(!p.groups.length){toast('Escreva uma fórmula com dados, ex.: 2d6+3.');return}
+  trayRoll(p,diceUI.expr.trim().slice(0,40))});
+$('diceTray').addEventListener('toggle',e=>{if(e.target.matches('details.dlog'))diceUI.logOpen=e.target.open},true);
+
 /* ---------- live data ---------- */
-function render(){if(obsMode)return;renderLive();renderPlayer();watchThreads();chatChrome();if(unlocked)renderRoster();renderSheet(false);if(unlocked)renderDesk(false)}
+function render(){if(obsMode)return;renderLive();renderPlayer();renderDice();watchThreads();chatChrome();if(unlocked)renderRoster();renderSheet(false);if(unlocked)renderDesk(false)}
 function listen(col,onDocs){return db.collection(col).orderBy('order').onSnapshot(s=>{data[col]=s.docs.map(d=>({id:d.id,...structuredClone(d.data())}));onDocs&&onDocs(s)},err=>{if(err.code==='revoked')setStatus('warn','Acesso encerrado')})}
 async function decryptCol(col){const out=[];for(const r of raw[col]){const d=await decObj(r.d);if(d)out.push({...d,id:r.id,order:r.d.order??d.order})}data[col]=out}
 async function decryptAll(){if(!mkey)return;await Promise.all(['mnpcs','mrefs','marchive'].map(decryptCol));if(raw.mnotes){const n=await decObj(raw.mnotes);if(n)notesDoc=n}if(!curNpc())ui.npcSel=(data.mnpcs[0]||{}).id||null}
@@ -1243,6 +1488,7 @@ render();
   if(!db){setStatus('warn','Sem conexão com o banco de dados (confira o firebase-config.js)');return}
   auth=await claude.use('auth');me=auth&&auth.user();
   $('views').hidden=false;
+  watchRolls();
   let loaded=false;const timer=setTimeout(()=>{if(!loaded)setStatus('warn','Sem conexão com as fichas ainda')},10000);
   db.collection('public').orderBy('order').onSnapshot(snap=>{
     pub=snap.docs.map(d=>({id:d.id,...structuredClone(d.data())}));pubLoaded=true;

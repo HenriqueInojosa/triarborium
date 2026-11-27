@@ -64,6 +64,16 @@ service cloud.firestore {
       }
     }
 
+    // Mesa de dados: todos leem; o jogador rola só pelo próprio personagem; o mestre rola e limpa a mesa.
+    match /rolls/{id} {
+      allow read: if signedIn();
+      allow create: if isMaster()
+        || (viaGoogle() && request.resource.data.uid == request.auth.uid
+            && request.resource.data.charId is string
+            && ownsChar(request.resource.data.charId));
+      allow delete: if isMaster();
+    }
+
     // Dados do mestre (já criptografados com a senha): só o mestre.
     match /{col}/{d} {
       allow read, write: if isMaster() && col in ['mnpcs', 'mrefs', 'marchive', 'mnotes'];
