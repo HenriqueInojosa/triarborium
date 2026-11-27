@@ -984,7 +984,7 @@ function renderPlayer(){
       <div class="kz-pickhead"><img class="kz-crest sm" src="${crest}" alt=""><div><p class="kz-eyebrow">Bem-vindo, viajante</p><h1 class="kz-title sm">Escolha seu herói</h1></div><button class="kz-ghost" data-logout>Sair</button></div>
       <p class="kz-lore">Cada herói só pode ter um portador. Os que já atravessaram o portão aparecem apagados.</p>
       <div class="kz-grid">${pub.map(p=>{const taken=p.owner&&p.owner!==me.uid;return `<button class="kz-hero${taken?' taken':''}" data-claim="${esc(p.id)}" ${taken?'disabled':''}><span class="kz-frame">${blob(p.portrait)?`<img src="${face(p)}" alt="">`:`<span class="ph">${esc((p.name||'?').charAt(0))}</span>`}</span><b>${esc(p.name)}</b><span class="kz-cls">${taken?'Já escolhido':esc(p.cls||'Aventureiro')}</span></button>`}).join('')||'<p class="kz-lore">O mestre ainda não cadastrou heróis.</p>'}</div></div>`));return}
-  pv.hidden=true;pv._h='';lay.hidden=false;bar.hidden=true;subscribeMine(mine.id);renderMyHud();document.body.classList.add('pmode');
+  pv.hidden=true;pv._h='';lay.hidden=false;bar.hidden=true;document.body.classList.add('pmode');subscribeMine(mine.id);renderMyHud();
   bar.innerHTML=`<span class="hint">Jogando como <b>${esc(mine.name)}</b></span><span class="row"><button class="btn sm" data-release>Trocar personagem</button><button class="btn sm" data-logout>Sair</button></span>`;
 }
 async function claim(id){
@@ -1120,6 +1120,8 @@ function sceneSet(id,kind,on){
 })();
 function scalePreview(){document.querySelectorAll('.obs-preview').forEach(p=>{if(p.firstElementChild&&p.clientWidth)p.firstElementChild.style.transform='scale('+(p.clientWidth/2172)+')'})}
 addEventListener('resize',scalePreview);
+/* the HUD column can change width without a window resize (layout switch, fonts, sidebar): rescale whenever it does */
+if(window.ResizeObserver){const ro=new ResizeObserver(()=>scalePreview());const hp=document.querySelector('#myHud .obs-preview');if(hp)ro.observe(hp);addEventListener('load',scalePreview)}
 wireSheet($('mbody'),()=>ui.mtab==='npcs'?{col:'mnpcs',c:curNpc(),m:true,edit:true,setTab:t=>ui.npcTab=t,rerender:()=>renderDesk(true)}
   :ui.mtab==='players'?{col:'chars',c:find('chars',ui.mpSel),m:canWrite,edit:canWrite,setTab:t=>ui.mpTab=t,rerender:()=>renderDesk(true)}:null);
 $('mtabs').addEventListener('click',e=>{const b=e.target.closest('[data-mtab]');if(b){ui.mtab=b.dataset.mtab;ui.confirm=null;renderDesk(true)}});
