@@ -46,18 +46,14 @@
 @media (max-width:860px){.grid2.sheet3{grid-template-columns:1fr}}
 @media (min-width:1000px){
   body.pmode .shell{max-width:1400px;gap:12px}
-  body.pmode #groupView{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(360px,420px);grid-template-rows:auto 1fr;gap:12px!important;align-items:stretch}
+  body.pmode #groupView{display:grid!important;grid-template-columns:minmax(0,.85fr) minmax(0,1fr);grid-template-rows:auto 1fr;gap:12px!important;align-items:stretch}
   body.pmode #livebar>*{grid-column:1/-1}
   body.pmode #myHud{grid-column:1;justify-content:flex-start;align-items:flex-start;padding:0}
   body.pmode #myHud .obs-preview{max-width:700px;width:100%}
   body.pmode #diceTray{grid-column:2;grid-row:span 2;align-self:stretch;padding:12px 14px}
-  body.pmode #diceTray #dSeats{flex:1;grid-auto-rows:1fr;align-items:stretch}
-  body.pmode #diceTray #dSeats>div,body.pmode #diceTray #dSeats .seat{height:100%}
-  body.pmode #diceTray .seat-felt{flex:1}
   body.pmode #sheetLayout,body.pmode #sheetLayout>#sheet{height:100%}
   body.pmode #sheetLayout{grid-column:1}
-  body.pmode #diceTray .seats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}
-  body.pmode #diceTray .seat-felt{min-height:44px}
+  body.pmode #diceTray #dRoller{margin-top:auto}
   body.pmode #sheet{padding:12px 16px}
   body.pmode #sheet .hero{display:none}
   body.pmode .grid2.sheet3{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -71,6 +67,20 @@
 .pportrait .pp-txt h3{margin:0;font:900 clamp(26px,3vw,40px)/1.1 'Cinzel Decorative','Cinzel',Georgia,serif;background:linear-gradient(180deg,#fff6dc 8%,#ecc57a 52%,#a06f2c 96%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 #1a0b2b) drop-shadow(0 0 16px #a774ff55)}
 .pportrait .pp-txt p{margin:6px 0 0;color:var(--muted);font-size:17px}
 body.pmode .shell{padding-bottom:96px}
+/* player screen dice table: compact squares, 3 per row (2 on small screens) so a full table fits without a long scroll */
+body.pmode #diceTray .seats{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-rows:1fr;align-items:stretch;gap:8px}
+body.pmode #diceTray #dSeats>div{display:flex}
+body.pmode #diceTray .seat{padding:6px 8px;gap:5px;flex:1}
+body.pmode #diceTray .seat-felt{flex:1}
+body.pmode #diceTray .seat-head img,body.pmode #diceTray .seat-head .ph,body.pmode #diceTray .seat-gm{width:26px;height:26px}
+body.pmode #diceTray .seat-felt{min-height:48px;padding:4px 6px;gap:4px}
+body.pmode #diceTray .seat-total{font-size:22px}
+body.pmode #diceTray .seat-lbl{font-size:12px}
+body.pmode #diceTray .seat-expr{display:none}
+body.pmode #diceTray .seat-idle{font-size:11.5px}
+body.pmode #diceTray .die{width:34px;height:34px}
+body.pmode #diceTray .die b{font-size:13px}
+@media (max-width:640px){body.pmode #diceTray .seats{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 body.pmode #sheet .hero{display:none}
 @media (max-width:999px){.pportrait{gap:16px}.pportrait .scene-frame{width:120px}}
 @media (max-width:520px){.pportrait .scene-frame{width:96px}.pportrait .pp-txt h3{font-size:24px}.pportrait .pp-txt p{font-size:15px}}
