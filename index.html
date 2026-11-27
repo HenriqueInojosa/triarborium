@@ -1050,6 +1050,7 @@ function sceneTabHTML(){
   const chars=data.chars.filter(c=>!inIds.has(c.id)),npcs=data.mnpcs.filter(c=>!inIds.has(c.id));
   return `<div class="panel sheet"><div class="row" style="justify-content:space-between"><h2>Em cena</h2><button class="btn danger" data-sc-clear ${list.length?'':'disabled'}>Limpar cena</button></div>
     <p class="hint">Arraste personagens e NPCs para a cena, e para fora dela para tirar. No celular, toque no card. O que estiver na cena aparece para os jogadores no topo da aba Grupo.</p>
+    <div class="field"><b style="color:var(--ink)">Link para o OBS</b><span>Fontes → + → Navegador → cole o link, 1920×1080. Fundo verde: troque o final por <b>#overlay-cena-verde</b>.</span><div class="linkrow"><code>${ARTIFACT_URL}#overlay-cena</code><button class="btn sm" data-copy="${ARTIFACT_URL}#overlay-cena">Copiar</button></div></div>
     <div class="sc-wrap"><div class="sc-zone stage" data-sc-drop="in"><h4>Na cena</h4><div class="sc-grid">${list.map(n=>card(n,n.kind==='char'?'char':'npc',true)).join('')||'<p class="sc-empty">Arraste alguém para cá.</p>'}</div></div>
     <div class="sc-zone" data-sc-drop="out"><h4>Personagens</h4><div class="sc-grid">${chars.map(c=>card(c,'char',false)).join('')||'<p class="hint">Todos já estão em cena.</p>'}</div>
       <h4>NPCs</h4><div class="sc-grid">${npcs.map(c=>card(c,'npc',false)).join('')||'<p class="hint">Nenhum NPC disponível.</p>'}</div></div></div></div>`;
@@ -1275,7 +1276,7 @@ $('importFile').addEventListener('change',async e=>{const files=[...e.target.fil
   for(const f of files){try{if(f.size>16*1024*1024)throw Error('arquivo grande demais');toast(await importFile(f))}catch(err){toast(f.name+': '+(err.message||err.code||'não foi possível ler'))}}render()});
 
 /* ---------- OBS overlays ---------- */
-const OBS_MODES={'overlay':'players','overlay-npcs':'npcs','overlay-referencias':'refs'};
+const OBS_MODES={'overlay':'players','overlay-npcs':'npcs','overlay-cena':'npcs','overlay-referencias':'refs'};
 const hashName=decodeURIComponent(location.hash.slice(1));
 const obsMode=OBS_MODES[hashName.replace(/-verde$/,'')]||null;
 const ART={frame:'assets/97f2b9f92d23f2822a33261483834ed3.png',shadow:'assets/0d7e5ad6a3be0fefd12dfd6a1a9b1298.png',cracks:'assets/19065bc8d0e77ab9e2cc499ca7035d24.png',eye:'assets/b3c72735a932ee6db2a4abf8bf6f86e7.png',npcFrame:'assets/3bfed3aab84eccbc45db664cc3f5e66e.png',disc:'assets/1a7d6721e8b86f4a833db297514f5d59.png',refFrame:'assets/d0e40c11b9b8507352b78e6a3e6e883a.png'};
@@ -1356,7 +1357,7 @@ function obsTabHTML(){
     <section class="panel sheet"><h2>Links para o OBS</h2>
       <p class="hint">No OBS: Fontes → + → Navegador → cole o link, largura 1920, altura 1080. Não precisa de login.</p>
       ${link('overlay','Jogadores','Moldura com retrato, nome, efeitos e sanidade do jogador em destaque.')}
-      ${link('overlay-npcs','NPCs','Os NPCs que você colocar em cena.')}
+      ${link('overlay-cena','Em cena','Personagens e NPCs que estiverem na aba Em cena.')}
       ${link('overlay-referencias','Referências','A referência que estiver sendo mostrada.')}
       <p class="hint">Também existe a versão com fundo verde (link terminado em <b>-verde</b>, ex.: #overlay-verde) para usar com “Captura de janela” e filtro “Chroma key”.</p></section>
   </div>`;
