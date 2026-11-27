@@ -701,7 +701,7 @@ function write(col,id,patch){
 const timers={};
 function writeLater(col,id,patch,key){clearTimeout(timers[key]);if(col==='mnotes')Object.assign(notesDoc,patch);else{const c=find(col,id);if(c)Object.assign(c,patch)}timers[key]=setTimeout(()=>write(col,id,patch),600)}
 async function create(col,id,doc){try{if(MASTER.has(col)){data[col].push({id,...doc});doc={...(await encObj(doc)),order:doc.order||0}}await db.collection(col).doc(id).set(doc);return true}catch(e){toast('Não foi possível criar ('+(e.code||'erro')+').');return false}}
-async function remove(col,id){try{await db.collection(col).doc(id).delete();if(col==='chars')await db.collection('public').doc(id).delete()}catch(e){toast('Não foi possível remover.')}}
+async function remove(col,id){try{await db.collection(col).doc(id).delete();if(col==='chars')await db.collection('public').doc(id).delete();if(col==='mnpcs'&&(ov().npcs||[]).some(n=>n.id===id))setOv({npcs:(ov().npcs||[]).filter(n=>n.id!==id)})}catch(e){toast('Não foi possível remover.')}}
 
 /* ---------- region rendering that never clobbers a field being typed in ---------- */
 const pending={};
@@ -1491,9 +1491,12 @@ function render(){if(obsMode)return;renderLive();renderPlayer();renderDice();wat
 function listen(col,onDocs){return db.collection(col).orderBy('order').onSnapshot(s=>{data[col]=s.docs.map(d=>({id:d.id,...structuredClone(d.data())}));onDocs&&onDocs(s)},err=>{if(err.code==='revoked')setStatus('warn','Acesso encerrado')})}
 async function decryptCol(col){const out=[];for(const r of raw[col]){const d=await decObj(r.d);if(d)out.push({...d,id:r.id,order:r.d.order??d.order})}data[col]=out}
 async function decryptAll(){if(!mkey)return;await Promise.all(['mnpcs','mrefs','marchive'].map(decryptCol));if(raw.mnotes){const n=await decObj(raw.mnotes);if(n)notesDoc=n}if(!curNpc())ui.npcSel=(data.mnpcs[0]||{}).id||null}
+let npcsLoaded=false,liveLoaded=false;
+/* drop scene entries whose NPC no longer exists (e.g. deleted before this fix) */
+function pruneScene(){if(!unlocked||!npcsLoaded||!liveLoaded)return;const ids=new Set(raw.mnpcs.map(r=>r.id)),list=ov().npcs||[];if(list.some(n=>!ids.has(n.id)))setOv({npcs:list.filter(n=>ids.has(n.id))})}
 function startMaster(){
   if(masterSubs||!db)return;masterSubs=true;
-  for(const col of ['mnpcs','mrefs','marchive'])db.collection(col).orderBy('order').onSnapshot(async s=>{raw[col]=s.docs.map(d=>({id:d.id,d:d.data()}));if(!mkey)return;await decryptCol(col);if(col==='mnpcs'&&!curNpc())ui.npcSel=(data.mnpcs[0]||{}).id||null;renderDesk(false)},()=>{});
+  for(const col of ['mnpcs','mrefs','marchive'])db.collection(col).orderBy('order').onSnapshot(async s=>{raw[col]=s.docs.map(d=>({id:d.id,d:d.data()}));if(col==='mnpcs'&&!s.metadata.fromCache){npcsLoaded=true;pruneScene()}if(!mkey)return;await decryptCol(col);if(col==='mnpcs'&&!curNpc())ui.npcSel=(data.mnpcs[0]||{}).id||null;renderDesk(false)},()=>{});
   db.doc('mnotes/main').onSnapshot(async s=>{raw.mnotes=s.exists?s.data():null;if(!mkey||!raw.mnotes)return;const n=await decObj(raw.mnotes);if(n){notesDoc=n;renderDesk(false)}},()=>{});
 }
 if(!obsMode){document.body.insertAdjacentHTML('afterbegin',`<div class="kz-backdrop" aria-hidden="true"><div class="kz-sky"></div><div class="kz-tower"></div>${SIGIL}<canvas class="kz-motes"></canvas></div>`);startMotes(document.querySelector('.kz-backdrop'))}
@@ -1513,7 +1516,7 @@ render();
   },err=>{clearTimeout(timer);setStatus('warn','Conexão perdida, recarregue a página')});
   const saved=store.get('tri-mestre',sessionStorage);if(saved&&await tryPassword(saved))unlock(saved);
   render();
-  db.doc('session/live').onSnapshot(s=>{if(s.exists)live=structuredClone(s.data());if(!live.initiative)live.initiative={entries:[],round:1,turn:0};combatAlerts();renderLive();if(unlocked&&['init','refs','over','obs','players'].includes(ui.mtab))renderDesk(false);if(unlocked)renderSheet(false)},()=>{});
+  db.doc('session/live').onSnapshot(s=>{if(s.exists)live=structuredClone(s.data());if(!s.metadata.fromCache){liveLoaded=true;pruneScene()}if(!live.initiative)live.initiative={entries:[],round:1,turn:0};combatAlerts();renderLive();if(unlocked&&['init','refs','over','obs','players'].includes(ui.mtab))renderDesk(false);if(unlocked)renderSheet(false)},()=>{});
 })();
 })();
 </script>
