@@ -68,7 +68,13 @@ export function renderSheet(force){
 export const myPub=()=>S.me&&!S.me.anon?S.pub.find(p=>p.owner===S.me.uid):null;
 export function subscribeMine(id){
   if(S.mySubId===id)return;if(S.mySub){S.mySub();S.mySub=null}S.mySubId=id;data.chars=[];if(!id)return;
-  S.mySub=S.db.collection('chars').doc(id).onSnapshot(s=>{data.chars=s.exists?[{id:s.id,...structuredClone(s.data())}]:[];ui.sel=id;render()},()=>{toast('Não foi possível abrir a sua ficha.')});
+  S.mySub=S.db.collection('chars').doc(id).onSnapshot(s=>{subscribeMine.fails=0;data.chars=s.exists?[{id:s.id,...structuredClone(s.data())}]:[];ui.sel=id;render()},()=>{
+    // Logo depois de escolher o personagem (ou de entrar), o banco pode ainda não ter gravado que a ficha é sua
+    // e recusa a leitura. Antes a assinatura morria aqui e a ficha só aparecia com F5; agora tenta de novo.
+    if(S.mySubId!==id)return;S.mySub=null;S.mySubId=null;
+    const n=subscribeMine.fails=(subscribeMine.fails||0)+1;
+    if(n<=5)setTimeout(render,600*n);else toast('Não foi possível abrir a sua ficha.');
+  });
 }
 /* Karazhan gate: full-screen night scene for login and hero choice */
 export const SIGIL=`<svg class="kz-sigil" viewBox="-100 -100 200 200" aria-hidden="true" fill="none" stroke="currentColor"><circle r="96" stroke-width=".6"/><circle r="90" stroke-width="1.4"/><circle r="70" stroke-width=".6" stroke-dasharray="2 4"/><circle r="40" stroke-width=".8"/>${Array.from({length:24},(_,i)=>{const a=i*15*Math.PI/180,r1=i%2?86:82;return `<line x1="${(Math.cos(a)*r1).toFixed(1)}" y1="${(Math.sin(a)*r1).toFixed(1)}" x2="${(Math.cos(a)*90).toFixed(1)}" y2="${(Math.sin(a)*90).toFixed(1)}" stroke-width=".8"/>`}).join('')}<path d="M0 -70 L60.6 35 L-60.6 35 Z M0 70 L60.6 -35 L-60.6 -35 Z" stroke-width=".7"/>${Array.from({length:6},(_,i)=>{const a=(i*60-90)*Math.PI/180;return `<circle cx="${(Math.cos(a)*70).toFixed(1)}" cy="${(Math.sin(a)*70).toFixed(1)}" r="4" stroke-width=".8"/>`}).join('')}</svg>`;
