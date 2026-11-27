@@ -661,7 +661,11 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,Math.trunc(Number(n)||0)));
 const mod=n=>{const m=Math.floor((Number(n)-10)/2);return (m>=0?'+':'')+m};
 const uid=()=>(crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):'x'+Date.now().toString(36)+Math.random().toString(36).slice(2));
 const blob=id=>!id?'':String(id).startsWith('fb:')?fbUrl(String(id)):ASSET_EXT[id]?'assets/'+id+'.'+ASSET_EXT[id]:'';
-const pic=(c,cls='')=>blob(c.portrait)?`<img class="${cls}" src="${blob(c.portrait)}" alt="">`:`<span class="ph ${cls}">${esc((c.name||'?').trim().charAt(0).toUpperCase())}</span>`;
+/* sanity stages: below 60 and below 20 the animated portraits swap to "shaken" (-s1) and "unhinged" (-s2) versions */
+const SAN_VAR=new Set(["112937fe5954a7a76668d0490543c7c4","11390d3c49c465cdf2c02fa2bcfc2cec","1b81ad7d23d107be7d3a61ec5daee198","3107b3cff22e350e323958e36e17bdad","363358ecda1e6c1e36a5be1234710e2b","70eeae5003a9a85618bc802413ce3f98","804fc155628fc18f18070f94438004d7","9686e9ecda4fdfef65e2f1542e3aabda","a13f22ef70f2d0e9e8174c3d19dd02dc","c39ea0ad7dfa55d3af7bdd96eae8485c","c5aca6520af04e491c783079bff1fa08"]);
+const sanOf=c=>{let v=c?c.sanity:null;if(v==null&&c&&typeof pub!=='undefined'){const p=pub.find(x=>x.id===c.id||x.id===c.ref);if(p)v=p.sanity}const n=Number(v);return v==null||isNaN(n)?100:n};
+const face=c=>{const id=c&&c.portrait,base=blob(id);if(!base||!SAN_VAR.has(id))return base;const v=sanOf(c);return v<20?'assets/'+id+'-s2.gif':v<60?'assets/'+id+'-s1.gif':base};
+const pic=(c,cls='')=>blob(c.portrait)?`<img class="${cls}" src="${face(c)}" alt="">`:`<span class="ph ${cls}">${esc((c.name||'?').trim().charAt(0).toUpperCase())}</span>`;
 const store={get(k,s=localStorage){try{return s.getItem(k)}catch(e){return null}},set(k,v,s=localStorage){try{v==null?s.removeItem(k):s.setItem(k,v)}catch(e){}}};
 
 /* ---------- files kept in Firestore (free plan has no Storage): blobs/<id> with base64, split into parts when large ---------- */
@@ -945,7 +949,7 @@ function renderPlayer(){
     setPV(pv,kzScene(`<div class="kz-pick">
       <div class="kz-pickhead"><img class="kz-crest sm" src="${crest}" alt=""><div><p class="kz-eyebrow">Bem-vindo, viajante</p><h1 class="kz-title sm">Escolha seu herói</h1></div><button class="kz-ghost" data-logout>Sair</button></div>
       <p class="kz-lore">Cada herói só pode ter um portador. Os que já atravessaram o portão aparecem apagados.</p>
-      <div class="kz-grid">${pub.map(p=>{const taken=p.owner&&p.owner!==me.uid;return `<button class="kz-hero${taken?' taken':''}" data-claim="${esc(p.id)}" ${taken?'disabled':''}><span class="kz-frame">${blob(p.portrait)?`<img src="${blob(p.portrait)}" alt="">`:`<span class="ph">${esc((p.name||'?').charAt(0))}</span>`}</span><b>${esc(p.name)}</b><span class="kz-cls">${taken?'Já escolhido':esc(p.cls||'Aventureiro')}</span></button>`}).join('')||'<p class="kz-lore">O mestre ainda não cadastrou heróis.</p>'}</div></div>`));return}
+      <div class="kz-grid">${pub.map(p=>{const taken=p.owner&&p.owner!==me.uid;return `<button class="kz-hero${taken?' taken':''}" data-claim="${esc(p.id)}" ${taken?'disabled':''}><span class="kz-frame">${blob(p.portrait)?`<img src="${face(p)}" alt="">`:`<span class="ph">${esc((p.name||'?').charAt(0))}</span>`}</span><b>${esc(p.name)}</b><span class="kz-cls">${taken?'Já escolhido':esc(p.cls||'Aventureiro')}</span></button>`}).join('')||'<p class="kz-lore">O mestre ainda não cadastrou heróis.</p>'}</div></div>`));return}
   pv.hidden=true;pv._h='';lay.hidden=false;bar.hidden=true;subscribeMine(mine.id);renderMyHud();
   bar.innerHTML=`<span class="hint">Jogando como <b>${esc(mine.name)}</b></span><span class="row"><button class="btn sm" data-release>Trocar personagem</button><button class="btn sm" data-logout>Sair</button></span>`;
 }
@@ -1297,19 +1301,19 @@ function hudHTML(c){
   const v=clamp(c.sanity??100,0,100),pos=iniPos(c.id);
   const fx=(c.effects||[]).filter(e=>blob(e.image)).slice(0,4).map((e,i)=>`<span class="hud-effect ${e.type==='debuff'?'bad':'good'}" style="grid-column:${i+1}"><img src="${blob(e.image)}" alt="${esc(e.label)}"></span>`).join('');
   return `<div class="hud-illustrated ${sanLevel(v)}" data-id="${esc(c.id)}"><div class="hud-shadow-layer" aria-hidden="true"><img class="hud-shadow-img shadow-one" src="${ART.shadow}" alt=""><img class="hud-shadow-img shadow-two" src="${ART.shadow}" alt=""></div>
-    <div class="hud-photo">${blob(c.portrait)?`<img src="${blob(c.portrait)}" alt="">`:''}</div><img class="hud-painterly" src="${ART.frame}" alt="">
+    <div class="hud-photo">${blob(c.portrait)?`<img src="${face(c)}" alt="">`:''}</div><img class="hud-painterly" src="${ART.frame}" alt="">
     <div class="hud-label"><strong>${esc(c.name)}</strong><span>${esc(c.cls||'Aventureiro')}</span></div><div class="hud-fx">${fx}</div>${pos?`<div class="hud-order">${pos}</div>`:''}
     <div class="san-module"><div class="hud-san-track"><div class="hud-san-fill" style="width:${v}%"></div></div><div class="hud-san-value">${v}<small> / 100</small></div><div class="hud-crimson-cracks"><img src="${ART.cracks}" alt=""></div></div>
     <div class="hud-eye-glow" aria-hidden="true"></div><img class="hud-eye-red" src="${ART.eye}" aria-hidden="true" alt=""></div>`;
 }
-function npcArtHTML(n,pos){return `<div class="npc-art" data-id="${esc(n.id)}"><div class="face">${blob(n.portrait)?`<img src="${blob(n.portrait)}" alt="">`:''}</div><img class="frame" src="${ART.npcFrame}" alt=""><div class="name">${esc(n.name)}</div>${pos?`<div class="medal"><img src="${ART.disc}" alt=""><span>${pos}</span></div>`:''}</div>`}
+function npcArtHTML(n,pos){return `<div class="npc-art" data-id="${esc(n.id)}"><div class="face">${blob(n.portrait)?`<img src="${face(n)}" alt="">`:''}</div><img class="frame" src="${ART.npcFrame}" alt=""><div class="name">${esc(n.name)}</div>${pos?`<div class="medal"><img src="${ART.disc}" alt=""><span>${pos}</span></div>`:''}</div>`}
 function obsFit(){const k=Math.min(innerWidth/1920,innerHeight/1080);$('stage').style.transform=`translate(${Math.max(0,(innerWidth-1920*k)/2)}px,${Math.max(0,(innerHeight-1080*k)/2)}px) scale(${k})`}
 let obsLast='';
 function renderObs(){
   const o=ov(),L=Object.assign({},LAYOUT,o.layout||{});
   if(obsMode==='players'){
     const root=$('obsPlayers');const actors=o.visible===false?[]:o.all?data.chars:data.chars.filter(c=>c.id===o.selected);
-    const key=actors.map(c=>c.id).join('|');const html=actors.map(hudHTML).join('');
+    const key=actors.map(c=>c.id+':'+face(c)).join('|');const html=actors.map(hudHTML).join('');
     if(key!==obsLast){root.innerHTML=html;obsLast=key}else{
       // same people on screen: update in place so the entrance animation does not replay
       const tmp=document.createElement('div');tmp.innerHTML=html;[...root.children].forEach((el,i)=>{const n=tmp.children[i];if(!n)return;el.className=n.className;
