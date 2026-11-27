@@ -8,6 +8,7 @@ import { renderDesk, scalePreview } from './mestre.js';
 import { setView } from './acesso.js';
 import { hudHTML, obsMode, ov, setOv } from './overlays.js';
 import { isDead } from './ruptura.js';
+import { RUNE_CIRCLE } from './runas.js';
 import { render } from './app.js';
 
 /* ---------- combat: turn bar for everyone (BG3-style), splash on start, "your turn" alert ---------- */
@@ -71,7 +72,7 @@ export function subscribeMine(id){
 }
 /* Karazhan gate: full-screen night scene for login and hero choice */
 export const SIGIL=`<svg class="kz-sigil" viewBox="-100 -100 200 200" aria-hidden="true" fill="none" stroke="currentColor"><circle r="96" stroke-width=".6"/><circle r="90" stroke-width="1.4"/><circle r="70" stroke-width=".6" stroke-dasharray="2 4"/><circle r="40" stroke-width=".8"/>${Array.from({length:24},(_,i)=>{const a=i*15*Math.PI/180,r1=i%2?86:82;return `<line x1="${(Math.cos(a)*r1).toFixed(1)}" y1="${(Math.sin(a)*r1).toFixed(1)}" x2="${(Math.cos(a)*90).toFixed(1)}" y2="${(Math.sin(a)*90).toFixed(1)}" stroke-width=".8"/>`}).join('')}<path d="M0 -70 L60.6 35 L-60.6 35 Z M0 70 L60.6 -35 L-60.6 -35 Z" stroke-width=".7"/>${Array.from({length:6},(_,i)=>{const a=(i*60-90)*Math.PI/180;return `<circle cx="${(Math.cos(a)*70).toFixed(1)}" cy="${(Math.sin(a)*70).toFixed(1)}" r="4" stroke-width=".8"/>`}).join('')}</svg>`;
-function kzScene(inner){return `<div class="kz"><div class="kz-sky"></div><div class="kz-tower"></div>${SIGIL}<canvas class="kz-motes" aria-hidden="true"></canvas><div class="kz-content">${inner}</div><button class="kz-master" data-go-master>✦ Área do Mestre</button></div>`}
+function kzScene(inner,mod=''){return `<div class="kz ${mod}"><div class="kz-sky"></div><div class="kz-tower"></div>${SIGIL}<canvas class="kz-motes" aria-hidden="true"></canvas><div class="kz-content">${inner}</div><button class="kz-master" data-go-master>✦ Área do Mestre</button></div>`}
 export function startMotes(root){
   const cv=root.querySelector('.kz-motes');if(!cv||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const ctx=cv.getContext('2d');let W,H,dpr;const P=[];
@@ -104,13 +105,12 @@ export function renderPlayer(){
   if(!S.me||!S.pubLoaded){pv.hidden=false;bar.hidden=true;lay.hidden=true;setPV(pv,'<p class="hint">Conectando…</p>');return}
   const crest=(document.querySelector('.brand img')||{}).src||'';
   if(S.me.anon){subscribeMine(null);pv.hidden=false;bar.hidden=true;lay.hidden=true;
-    setPV(pv,kzScene(`<div class="kz-card">
+    setPV(pv,kzScene(`<div class="kz-circ"><div class="kz-circ-glow"></div>${RUNE_CIRCLE}<div class="kz-circ-in">
       <img class="kz-crest" src="${crest}" alt="Brasão Triarborium">
       <p class="kz-eyebrow">Triarborium · Campanha II</p>
       <h1 class="kz-title">Sombras de Karazhan</h1>
-      <div class="kz-orn"><span>◆</span></div>
       <button class="kz-btn" data-login><span class="kz-btn-main">Atravessar o portão</span><span class="kz-btn-sub">Entrar com Google</span></button>
-      </div>`));return}
+      </div></div>`,'kz-login'));return}
   const mine=myPub();
   if(!mine){subscribeMine(null);pv.hidden=false;bar.hidden=true;lay.hidden=true;
     setPV(pv,kzScene(`<div class="kz-pick">
