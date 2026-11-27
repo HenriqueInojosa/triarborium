@@ -440,7 +440,20 @@ html.obs .shell,html.obs .toast{display:none!important}
 .hud-illustrated.empty .hud-san-value{color:#898989;text-shadow:none}
 .hud-illustrated.empty .hud-shadow-layer{opacity:.7;filter:grayscale(1) brightness(.28)}
 .hud-illustrated.empty .hud-eye-red,.hud-illustrated.empty .hud-eye-glow{opacity:1;animation:eyePulse 1.5s ease-in-out infinite}
-.npc-list{flex-wrap:wrap;gap:18px;width:1272px;align-content:flex-start}
+#obsNpcs.fight{width:max-content;max-width:1500px;padding-top:0;display:block}
+#obsNpcs.fight .combat{position:static;box-shadow:0 14px 40px #000c}
+#obsNpcs.fight .cbt-track{overflow:visible}
+#obsDice{position:absolute;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;width:320px;transform-origin:bottom left;font-family:var(--body);color:var(--ink)}
+#obsDice .dice-pop{pointer-events:none}
+.npc-list{flex-wrap:nowrap;gap:18px;align-items:flex-start;padding-top:24px}
+.npc-art .ini-medal{position:absolute;z-index:4;left:2%;top:4%;width:22%;height:22%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ffe9b8;text-shadow:0 2px 4px #000;filter:drop-shadow(0 4px 8px #000a)}
+.npc-art .ini-medal img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.npc-art .ini-medal small{position:relative;z-index:1;font:600 15px Georgia,serif;letter-spacing:.14em;color:#d9b779;margin-bottom:-2px}
+.npc-art .ini-medal b{position:relative;z-index:1;font:700 44px/1 "Palatino Linotype",Georgia,serif}
+.npc-art.now{filter:drop-shadow(0 0 22px #ffcf6acc) drop-shadow(0 10px 14px #0008)}
+.npc-art.now>.frame{filter:brightness(1.18) saturate(1.15)}
+.npc-art .turn-tag{position:absolute;z-index:5;left:50%;bottom:-6%;transform:translateX(-50%);padding:4px 22px;border-radius:99px;background:linear-gradient(180deg,#f7e2ad,#b98a3e);color:#2a1606;font:700 24px Georgia,serif;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 4px 12px #000a;animation:turnPulse 1.6s ease-in-out infinite}
+@keyframes turnPulse{0%,100%{box-shadow:0 4px 12px #000a,0 0 0 #ffcf6a00}50%{box-shadow:0 4px 12px #000a,0 0 22px #ffcf6aaa}}
 .npc-art{position:relative;width:420px;height:420px;flex:none;isolation:isolate;animation:overlayEnter .55s ease-out both;filter:drop-shadow(0 10px 14px #0008)}
 .npc-art .face{position:absolute;z-index:1;inset:0;-webkit-mask-image:url('assets/2a586ab5b8ecb138a6d7f879c2000fe5.png');mask-image:url('assets/2a586ab5b8ecb138a6d7f879c2000fe5.png');-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .npc-art .face img{position:absolute;left:25.678%;top:14.514%;width:47.927%;height:48.246%;object-fit:cover;object-position:50% 11%;display:block;clip-path:ellipse(49.3% 49% at 50% 50%)}
@@ -584,7 +597,7 @@ try{
   ready({db,auth});
 }catch(e){console.error('Firebase:',e);ready({})}
 </script>
-</head><body><div id="obs" hidden><div class="obs-stage"><div id="stage" class="obs-canvas"><div id="obsPlayers" class="obs-actor-list"></div><div id="obsNpcs" class="npc-list"></div><div id="obsRef"></div></div></div><p id="obsMsg" class="obs-msg" hidden></p></div>
+</head><body><div id="obs" hidden><div class="obs-stage"><div id="stage" class="obs-canvas"><div id="obsPlayers" class="obs-actor-list"></div><div id="obsNpcs" class="npc-list"></div><div id="obsRef"></div><div id="obsDice"></div></div></div><p id="obsMsg" class="obs-msg" hidden></p></div>
 
 <div class="shell">
   <header class="top">
@@ -661,10 +674,10 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,Math.trunc(Number(n)||0)));
 const mod=n=>{const m=Math.floor((Number(n)-10)/2);return (m>=0?'+':'')+m};
 const uid=()=>(crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):'x'+Date.now().toString(36)+Math.random().toString(36).slice(2));
 const blob=id=>!id?'':String(id).startsWith('fb:')?fbUrl(String(id)):ASSET_EXT[id]?'assets/'+id+'.'+ASSET_EXT[id]:'';
-/* sanity stages: below 60 and below 20 the animated portraits swap to "shaken" (-s1) and "unhinged" (-s2) versions */
+/* sanity stages: below 50 and below 20 the animated portraits swap to "shaken" (-s1) and "unhinged" (-s2) versions */
 const SAN_VAR=new Set(["112937fe5954a7a76668d0490543c7c4","11390d3c49c465cdf2c02fa2bcfc2cec","1b81ad7d23d107be7d3a61ec5daee198","3107b3cff22e350e323958e36e17bdad","363358ecda1e6c1e36a5be1234710e2b","70eeae5003a9a85618bc802413ce3f98","804fc155628fc18f18070f94438004d7","9686e9ecda4fdfef65e2f1542e3aabda","a13f22ef70f2d0e9e8174c3d19dd02dc","c39ea0ad7dfa55d3af7bdd96eae8485c","c5aca6520af04e491c783079bff1fa08"]);
 const sanOf=c=>{let v=c?c.sanity:null;if(v==null&&c&&typeof pub!=='undefined'){const p=pub.find(x=>x.id===c.id||x.id===c.ref);if(p)v=p.sanity}const n=Number(v);return v==null||isNaN(n)?100:n};
-const face=c=>{const id=c&&c.portrait,base=blob(id);if(!base||!SAN_VAR.has(id))return base;const v=sanOf(c);return v<20?'assets/'+id+'-s2.gif':v<60?'assets/'+id+'-s1.gif':base};
+const face=c=>{const id=c&&c.portrait,base=blob(id);if(!base||!SAN_VAR.has(id))return base;const v=sanOf(c);return v<20?'assets/'+id+'-s2.gif':v<50?'assets/'+id+'-s1.gif':base};
 const pic=(c,cls='')=>blob(c.portrait)?`<img class="${cls}" src="${face(c)}" alt="">`:`<span class="ph ${cls}">${esc((c.name||'?').trim().charAt(0).toUpperCase())}</span>`;
 const store={get(k,s=localStorage){try{return s.getItem(k)}catch(e){return null}},set(k,v,s=localStorage){try{v==null?s.removeItem(k):s.setItem(k,v)}catch(e){}}};
 
@@ -1015,7 +1028,7 @@ function renderDesk(force){
     const ini=live.initiative||{entries:[],round:1,turn:0},ents=ini.entries||[];
     const opts=[...data.chars.map(c=>[c,'char']),...data.mnpcs.map(c=>[c,'npc'])].filter(([c])=>!ents.some(e=>e.ref===c.id));
     h=`<div class="panel sheet"><div class="row" style="justify-content:space-between"><h2>Iniciativa · Rodada ${Number(ini.round)||1}</h2>
-      <div class="row">${ents.length&&!combatOn(ini)?`<span class="hint">Montando o combate: os jogadores ainda não veem.</span><button class="btn gold" data-ini="start">⚔ Iniciar combate</button>`:`<button class="btn" data-ini="prev" ${ents.length?'':'disabled'}>← Turno anterior</button><button class="btn gold" data-ini="next" ${ents.length?'':'disabled'}>Próximo turno →</button>`}</div></div>
+      <div class="row">${ents.length&&!combatOn(ini)?`<span class="hint">Montando o combate: os jogadores ainda não veem. Ao iniciar, cada um rola d20 + DES e a ordem é montada sozinha.</span><button class="btn gold" data-ini="start">⚔ Iniciar combate</button>`:`<button class="btn" data-ini="prev" ${ents.length?'':'disabled'}>← Turno anterior</button><button class="btn gold" data-ini="next" ${ents.length?'':'disabled'}>Próximo turno →</button>`}</div></div>
       <div class="row"><select id="iniAdd" aria-label="Adicionar à iniciativa"><option value="">Adicionar participante…</option>${opts.map(([c,k])=>`<option value="${k}:${esc(c.id)}">${k==='npc'?'NPC · ':''}${esc(c.name)}</option>`).join('')}</select>
       <button class="btn" data-ini="addall">+ Todos os jogadores</button><button class="btn" data-ini="sort" ${ents.length>1?'':'disabled'}>Ordenar por valor</button>
       <label class="row lbl"><input type="checkbox" id="iniNums" ${ini.showNumbers?'checked':''}> Mostrar valores aos jogadores</label>
@@ -1117,7 +1130,11 @@ $('mbody').addEventListener('click',async e=>{
     else if(d.ini==='prev'){ini.turn=(ini.turn||0)-1;if(ini.turn<0){if((ini.round||1)>1){ini.round--;ini.turn=n-1}else ini.turn=0}}
     else if(d.ini==='sort'){const cur=ini.entries[ini.turn||0];ini.entries.sort((a,b)=>(Number(b.init)||0)-(Number(a.init)||0));ini.turn=Math.max(0,ini.entries.indexOf(cur))}
     else if(d.ini==='clear'){ini.entries=[];ini.turn=0;ini.round=1;ini.started=false}
-    else if(d.ini==='start'){if(!n)return;ini.started=true;ini.turn=0;ini.round=1}
+    else if(d.ini==='start'){if(!n)return;
+      /* roll initiative for everyone: d20 + DEX modifier, highest first (ties: higher DEX) */
+      for(const en of ini.entries){const c=find(en.kind==='npc'?'mnpcs':'chars',en.ref),m=statMod(c,'dex'),r=rnd(20);en.init=r+m;en.dex=m;en.roll=r}
+      ini.entries.sort((x,y)=>(y.init-x.init)||((y.dex||0)-(x.dex||0)));ini.started=true;ini.turn=0;ini.round=1;
+      toast('Iniciativa rolada (d20 + DES): '+ini.entries.map(e=>String(e.name||'').split(' ')[0]+' '+e.init).join(', '))}
     else if(d.ini==='addall'){if(!n)ini.started=false;for(const c of data.chars)if(!ini.entries.some(x=>x.ref===c.id))ini.entries.push({id:uid(),ref:c.id,kind:'char',name:c.name,portrait:c.portrait||'',init:0})}
     else if(d.ini==='rm'&&i>=0){ini.entries.splice(i,1);if((ini.turn||0)>=ini.entries.length)ini.turn=0}
     else if(d.ini==='up'&&i>0){[ini.entries[i-1],ini.entries[i]]=[ini.entries[i],ini.entries[i-1]]}
@@ -1287,15 +1304,16 @@ $('importFile').addEventListener('change',async e=>{const files=[...e.target.fil
   for(const f of files){try{if(f.size>16*1024*1024)throw Error('arquivo grande demais');toast(await importFile(f))}catch(err){toast(f.name+': '+(err.message||err.code||'não foi possível ler'))}}render()});
 
 /* ---------- OBS overlays ---------- */
-const OBS_MODES={'overlay':'players','overlay-npcs':'npcs','overlay-cena':'npcs','overlay-referencias':'refs'};
+const OBS_MODES={'overlay':'players','overlay-npcs':'npcs','overlay-cena':'npcs','overlay-dados':'dice','overlay-referencias':'refs'};
 const hashName=decodeURIComponent(location.hash.slice(1));
 const obsMode=OBS_MODES[hashName.replace(/-verde$/,'')]||null;
 const ART={frame:'assets/97f2b9f92d23f2822a33261483834ed3.png',shadow:'assets/0d7e5ad6a3be0fefd12dfd6a1a9b1298.png',cracks:'assets/19065bc8d0e77ab9e2cc499ca7035d24.png',eye:'assets/b3c72735a932ee6db2a4abf8bf6f86e7.png',npcFrame:'assets/3bfed3aab84eccbc45db664cc3f5e66e.png',disc:'assets/1a7d6721e8b86f4a833db297514f5d59.png',refFrame:'assets/d0e40c11b9b8507352b78e6a3e6e883a.png'};
 const ARTIFACT_URL=location.origin+location.pathname;
-const LAYOUT={players:{x:0,y:63,scale:150},npcs:{x:70,y:4,scale:100},references:{x:12,y:12,scale:250}};
+const LAYOUT={players:{x:0,y:63,scale:150},npcs:{x:70,y:4,scale:100},references:{x:12,y:12,scale:250},dice:{x:2,y:96,scale:160}};
 const ov=()=>Object.assign({visible:true,all:false,follow:true,selected:null,npcs:[]},live.overlay||{});
 function setOv(patch){write('session','live',{overlay:{...ov(),...patch}})}
 const sanLevel=n=>{const v=clamp(n,0,100);return v===0?'empty':v<=20?'critical':v<=50?'shaken':'stable'};
+function iniInfo(id){const ini=live.initiative||{};if(!combatOn(ini))return null;const ents=ini.entries||[],i=ents.findIndex(e=>e.ref===id);if(i<0)return null;return{pos:i+1,val:ini.showNumbers?(Number(ents[i].init)||0):null,now:i===Math.min(ini.turn||0,ents.length-1)}}
 function iniPos(id){const ini=live.initiative||{};if(!ini.showNumbers||!combatOn(ini))return null;const i=(ini.entries||[]).findIndex(e=>e.ref===id);return i>=0?i+1:null}
 function hudHTML(c){
   const v=clamp(c.sanity??100,0,100),pos=iniPos(c.id);
@@ -1306,7 +1324,7 @@ function hudHTML(c){
     <div class="san-module"><div class="hud-san-track"><div class="hud-san-fill" style="width:${v}%"></div></div><div class="hud-san-value">${v}<small> / 100</small></div><div class="hud-crimson-cracks"><img src="${ART.cracks}" alt=""></div></div>
     <div class="hud-eye-glow" aria-hidden="true"></div><img class="hud-eye-red" src="${ART.eye}" aria-hidden="true" alt=""></div>`;
 }
-function npcArtHTML(n,pos){return `<div class="npc-art" data-id="${esc(n.id)}"><div class="face">${blob(n.portrait)?`<img src="${face(n)}" alt="">`:''}</div><img class="frame" src="${ART.npcFrame}" alt=""><div class="name">${esc(n.name)}</div>${pos?`<div class="medal"><img src="${ART.disc}" alt=""><span>${pos}</span></div>`:''}</div>`}
+function npcArtHTML(n,info){if(typeof info==='number')info={val:info};return `<div class="npc-art${info&&info.now?' now':''}" data-id="${esc(n.id)}"><div class="face">${blob(n.portrait)?`<img src="${face(n)}" alt="">`:''}</div><img class="frame" src="${ART.npcFrame}" alt=""><div class="name">${esc(n.name)}</div>${info&&info.val!=null?`<div class="ini-medal"><img src="${ART.disc}" alt=""><small>INI</small><b>${info.val}</b></div>`:''}${info&&info.now?'<div class="turn-tag">Turno</div>':''}</div>`}
 function obsFit(){const k=Math.min(innerWidth/1920,innerHeight/1080);$('stage').style.transform=`translate(${Math.max(0,(innerWidth-1920*k)/2)}px,${Math.max(0,(innerHeight-1080*k)/2)}px) scale(${k})`}
 let obsLast='';
 function renderObs(){
@@ -1325,17 +1343,27 @@ function renderObs(){
     root.style.left=Math.max(0,Math.min(l.x/100*1920,1920-2172*k))+'px';root.style.top=Math.max(0,Math.min(l.y/100*1080,1080-used*k-24))+'px';root.style.transform=`scale(${k})`;
   }
   if(obsMode==='npcs'){
-    const root=$('obsNpcs');const list=o.visible===false?[]:(o.npcs||[]);const key=JSON.stringify(list.map(n=>[n.id,n.name,n.portrait,iniPos(n.id)]));
-    if(key!==obsLast){root.innerHTML=list.map(n=>npcArtHTML(n,iniPos(n.id))).join('');obsLast=key}
-    const l=L.npcs,sz=Math.max(.2,Math.min(2.5,(l.scale??100)/100)),rows=Math.max(1,Math.ceil(list.length/3)),h=rows*420+(rows-1)*18,w=3*420+2*18,k=Math.min(sz,1920/w,1080/h);
+    const root=$('obsNpcs'),ini=live.initiative||{},fight=combatOn(ini);
+    const list=o.visible===false?[]:(o.npcs||[]);
+    const key=fight?'C'+JSON.stringify([ini,(ini.entries||[]).map(e=>face(e))]):JSON.stringify(list.map(n=>[n.id,n.name,face(n)]));
+    if(key!==obsLast){root.classList.toggle('fight',fight);root.innerHTML=fight?combatBar(ini,ini.entries):list.map(n=>npcArtHTML(n,null)).join('');obsLast=key}
+    const l=L.npcs,sz=Math.max(.2,Math.min(2.5,(l.scale??100)/100));let w,h;
+    if(fight){w=Math.max(300,root.offsetWidth||1500);h=Math.max(120,root.offsetHeight||200)}else{const cnt=Math.max(1,list.length);h=470;w=cnt*420+(cnt-1)*18}
+    const k=fight?Math.min(sz*2,1880/w,1080/h):Math.min(sz,1920/w,1080/h);
     root.style.left=Math.max(0,Math.min(l.x/100*1920,1920-w*k))+'px';root.style.top=Math.max(0,Math.min(l.y/100*1080,1080-h*k))+'px';root.style.transform=`scale(${k})`;
   }
+  if(obsMode==='dice'){const l=L.dice,sz=Math.max(.2,Math.min(3,(l.scale??100)/100)),root=$('obsDice'),k=sz;root.style.left=(l.x/100*1920)+'px';root.style.top='auto';root.style.bottom=(1080-l.y/100*1080)+'px';root.style.transform=`scale(${k})`}
   if(obsMode==='refs'){
     const root=$('obsRef'),r=live.reveal;const key=r?JSON.stringify([r.id,r.name,r.image]):'';
     if(key!==obsLast){obsLast=key;root.innerHTML=r?`<div class="reference-art"><div class="window">${blob(r.image)?`<img src="${blob(r.image)}" alt="">`:''}</div><img class="frame" src="${ART.refFrame}" alt=""><div class="caption">${esc(r.name||'')}</div></div>`:''}
     const el=root.firstElementChild;if(el){const l=L.references,sz=Math.max(.2,Math.min(2.5,(l.scale??100)/100)),k=Math.min(sz,1920/1448,1080/1075);el.style.left=Math.max(0,Math.min(l.x/100*1920,1920-1448*k))+'px';el.style.top=Math.max(0,Math.min(l.y/100*1080,1080-1075*k))+'px';el.style.transform=`scale(${k})`}
   }
 }
+/* dice overlay: each public roll pops in, stays a while and fades (hidden master rolls never reach the database) */
+function obsDicePop(r){const f=$('obsDice');if(!f)return;freshIds.add(r.id);
+  const seat=seatList().find(x=>x.id===r.charId)||{id:String(r.charId||''),name:r.who||'?'};
+  const el=document.createElement('div');el.className='dice-pop';el.innerHTML=seatHTML(seat,r,false);f.append(el);while(f.children.length>3)f.firstElementChild.remove();animateDice(el);
+  setTimeout(()=>freshIds.delete(r.id),3000);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400)},15000)}
 async function bootObs(){
   document.documentElement.classList.add('obs');if(/-verde$/.test(hashName))document.documentElement.classList.add('green');
   $('obs').hidden=false;addEventListener('resize',obsFit);obsFit();
@@ -1343,6 +1371,9 @@ async function bootObs(){
   db=await claude.use('db');
   if(!db){msg('Overlay Triarborium: sem conexão com o banco. Confira o firebase-config.js e recarregue.');return}
   msg('');
+  if(obsMode==='dice'){db.collection('public').orderBy('order').onSnapshot(s=>{pub=s.docs.map(d=>({id:d.id,...d.data()}))},()=>{});
+    let seen=null;db.collection('rolls').orderBy('at','desc').limit(6).onSnapshot(s=>{const list=s.docs.map(d=>({id:d.id,...d.data()}));if(seen)list.filter(r=>!seen.has(r.id)&&num(r.at)>Date.now()-30000).reverse().forEach(obsDicePop);seen=new Set(list.map(r=>r.id))},()=>msg('Overlay: conexão perdida, recarregue.'))}
+  if(obsMode==='npcs')db.collection('public').orderBy('order').onSnapshot(s=>{pub=s.docs.map(d=>({id:d.id,...d.data()}));renderObs()},()=>{});
   if(obsMode==='players')db.collection('public').orderBy('order').onSnapshot(s=>{data.chars=s.docs.map(d=>({id:d.id,...structuredClone(d.data())}));renderObs()},()=>msg('Overlay: conexão perdida, recarregue.'));
   db.doc('session/live').onSnapshot(s=>{if(s.exists)live=structuredClone(s.data());renderObs()},()=>msg('Overlay: conexão perdida, recarregue.'));
 }
@@ -1368,8 +1399,9 @@ function obsTabHTML(){
     <section class="panel sheet"><h2>Links para o OBS</h2>
       <p class="hint">No OBS: Fontes → + → Navegador → cole o link, largura 1920, altura 1080. Não precisa de login.</p>
       ${link('overlay','Jogadores','Moldura com retrato, nome, efeitos e sanidade do jogador em destaque.')}
-      ${link('overlay-cena','Em cena','Personagens e NPCs que estiverem na aba Em cena.')}
+      ${link('overlay-cena','Em cena','Personagens e NPCs em cena, em linha. Durante o combate vira a barra de iniciativa.')}
       ${link('overlay-referencias','Referências','A referência que estiver sendo mostrada.')}
+      ${link('overlay-dados','Dados','As rolagens da mesa aparecendo conforme são feitas (rolagens ocultas do mestre nunca aparecem).')}
       <p class="hint">Também existe a versão com fundo verde (link terminado em <b>-verde</b>, ex.: #overlay-verde) para usar com “Captura de janela” e filtro “Chroma key”.</p></section>
   </div>`;
 }
