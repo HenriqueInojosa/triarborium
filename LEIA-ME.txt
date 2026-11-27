@@ -42,7 +42,8 @@ OBSERVAÇÕES
 - Qualquer pessoa com o link consegue editar as fichas. Os dados do mestre ficam
   criptografados com a senha.
 - Imagens novas (retratos, referências) não sobem pelo site no plano grátis: coloque
-  o arquivo na pasta assets/ e peça ao Claude para cadastrar, depois reenvie a pasta.
+  o arquivo em public/assets/ (o nome do arquivo é o id da imagem; para retratos com
+  variações de sanidade, crie também id-s1.ext e id-s2.ext) e publique. Não precisa cadastrar.
 
 DESENVOLVIMENTO (Vite)
 - O código fica em src/ (um arquivo por área: ficha.js, dados.js, mestre.js, overlays.js,

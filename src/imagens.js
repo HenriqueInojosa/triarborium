@@ -1,5 +1,5 @@
 /* Retratos e imagens: arquivos em assets/ e imagens enviadas guardadas no Firestore (fb:...). */
-import { ASSET_EXT } from './assets.js';
+import { ASSET_EXT, SAN_VAR } from './assets.js';
 import { b64, esc, uid, unb64 } from './util.js';
 import { S } from './estado.js';
 import { renderChatList } from './chat.js';
@@ -8,7 +8,6 @@ import { render } from './app.js';
 
 export const blob=id=>!id?'':String(id).startsWith('fb:')?fbUrl(String(id)):ASSET_EXT[id]?'assets/'+id+'.'+ASSET_EXT[id]:'';
 /* sanity stages: below 50 and below 20 the animated portraits swap to "shaken" (-s1) and "unhinged" (-s2) versions */
-const SAN_VAR=new Set(["112937fe5954a7a76668d0490543c7c4","11390d3c49c465cdf2c02fa2bcfc2cec","1b81ad7d23d107be7d3a61ec5daee198","3107b3cff22e350e323958e36e17bdad","363358ecda1e6c1e36a5be1234710e2b","70eeae5003a9a85618bc802413ce3f98","804fc155628fc18f18070f94438004d7","9686e9ecda4fdfef65e2f1542e3aabda","a13f22ef70f2d0e9e8174c3d19dd02dc","c39ea0ad7dfa55d3af7bdd96eae8485c","c5aca6520af04e491c783079bff1fa08"]);
 export const sanOf=c=>{let v=c?c.sanity:null;if(v==null&&c&&typeof S.pub!=='undefined'){const p=S.pub.find(x=>x.id===c.id||x.id===c.ref);if(p)v=p.sanity}const n=Number(v);return v==null||isNaN(n)?100:n};
 export const face=c=>{const id=c&&c.portrait,base=blob(id);if(!base||!SAN_VAR.has(id))return base;const v=sanOf(c);return v<20?'assets/'+id+'-s2.gif':v<50?'assets/'+id+'-s1.gif':base};
 export const pic=(c,cls='')=>blob(c.portrait)?`<img class="${cls}" src="${face(c)}" alt="">`:`<span class="ph ${cls}">${esc((c.name||'?').trim().charAt(0).toUpperCase())}</span>`;
