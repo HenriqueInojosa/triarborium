@@ -11,7 +11,7 @@ import { animateDice, freshIds, num, seatHTML, seatList } from './dados.js';
 const OBS_MODES={'overlay':'players','overlay-npcs':'npcs','overlay-cena':'npcs','overlay-dados':'dice','overlay-referencias':'refs'};
 const hashName=decodeURIComponent(location.hash.slice(1));
 export const obsMode=OBS_MODES[hashName.replace(/-verde$/,'')]||null;
-const ART={frame:'assets/97f2b9f92d23f2822a33261483834ed3.png',shadow:'assets/0d7e5ad6a3be0fefd12dfd6a1a9b1298.png',cracks:'assets/19065bc8d0e77ab9e2cc499ca7035d24.png',eye:'assets/b3c72735a932ee6db2a4abf8bf6f86e7.png',npcFrame:'assets/3bfed3aab84eccbc45db664cc3f5e66e.png',disc:'assets/1a7d6721e8b86f4a833db297514f5d59.png',refFrame:'assets/d0e40c11b9b8507352b78e6a3e6e883a.png'};
+const ART={npcFrame:'assets/3bfed3aab84eccbc45db664cc3f5e66e.png',disc:'assets/1a7d6721e8b86f4a833db297514f5d59.png',refFrame:'assets/d0e40c11b9b8507352b78e6a3e6e883a.png'};
 export const ARTIFACT_URL=location.origin+location.pathname;
 const LAYOUT={players:{x:0,y:63,scale:150},npcs:{x:70,y:4,scale:100},references:{x:12,y:12,scale:250},dice:{x:2,y:96,scale:160}};
 export const ov=()=>Object.assign({visible:true,all:false,follow:true,selected:null,npcs:[]},S.live.overlay||{});
@@ -19,14 +19,17 @@ export function setOv(patch){write('session','live',{overlay:{...ov(),...patch}}
 const sanLevel=n=>{const v=clamp(n,0,100);return v===0?'empty':v<=20?'critical':v<=50?'shaken':'stable'};
 function iniInfo(id){const ini=S.live.initiative||{};if(!combatOn(ini))return null;const ents=ini.entries||[],i=ents.findIndex(e=>e.ref===id);if(i<0)return null;return{pos:i+1,val:ini.showNumbers?(Number(ents[i].init)||0):null,now:i===Math.min(ini.turn||0,ents.length-1)}}
 function iniPos(id){const ini=S.live.initiative||{};if(!ini.showNumbers||!combatOn(ini))return null;const i=(ini.entries||[]).findIndex(e=>e.ref===id);return i>=0?i+1:null}
+/* player HUD ("faixa rúnica"): round portrait ringed by a sanity arc + gilded pill with name, class and effects.
+   Native size HUD_W x HUD_H; HUD_K keeps the saved overlay scale looking like the old painted frame (2172px wide). */
+export const HUD_W=1080,HUD_H=288,HUD_K=2172/HUD_W;
 export function hudHTML(c){
   const v=clamp(c.sanity??100,0,100),pos=iniPos(c.id);
-  const fx=(c.effects||[]).filter(e=>blob(e.image)).slice(0,4).map((e,i)=>`<span class="hud-effect ${e.type==='debuff'?'bad':'good'}" style="grid-column:${i+1}"><img src="${blob(e.image)}" alt="${esc(e.label)}"></span>`).join('');
-  return `<div class="hud-illustrated ${sanLevel(v)}" data-id="${esc(c.id)}"><div class="hud-shadow-layer" aria-hidden="true"><img class="hud-shadow-img shadow-one" src="${ART.shadow}" alt=""><img class="hud-shadow-img shadow-two" src="${ART.shadow}" alt=""></div>
-    <div class="hud-photo">${blob(c.portrait)?`<img src="${face(c)}" alt="">`:''}</div><img class="hud-painterly" src="${ART.frame}" alt="">
-    <div class="hud-label"><strong>${esc(c.name)}</strong><span>${esc(c.cls||'Aventureiro')}</span></div><div class="hud-fx">${fx}</div>${pos?`<div class="hud-order">${pos}</div>`:''}
-    <div class="san-module"><div class="hud-san-track"><div class="hud-san-fill" style="width:${v}%"></div></div><div class="hud-san-value">${v}<small> / 100</small></div><div class="hud-crimson-cracks"><img src="${ART.cracks}" alt=""></div></div>
-    <div class="hud-eye-glow" aria-hidden="true"></div><img class="hud-eye-red" src="${ART.eye}" aria-hidden="true" alt=""></div>`;
+  const fx=(c.effects||[]).filter(e=>blob(e.image)).slice(0,4).map(e=>`<span class="hud-effect ${e.type==='debuff'?'bad':'good'}"><img src="${blob(e.image)}" alt="${esc(e.label)}"></span>`).join('');
+  return `<div class="hud-rune san-${sanLevel(v)}" data-id="${esc(c.id)}">
+    <div class="hud-pill"><div class="hud-label"><strong>${esc(c.name)}</strong><span>${esc(c.cls||'Aventureiro')}</span></div><div class="hud-fx">${fx}</div></div>
+    <div class="hud-ring"><svg viewBox="0 0 288 288" fill="none" aria-hidden="true"><circle class="hud-ring-bed" cx="144" cy="144" r="125"/><circle class="hud-ring-line" cx="144" cy="144" r="125"/><circle class="hud-san-arc" cx="144" cy="144" r="125" pathLength="100" transform="rotate(-90 144 144)" style="stroke-dasharray:${v} 100"/><circle class="hud-ring-gold" cx="144" cy="144" r="139"/></svg>
+      <div class="hud-photo">${blob(c.portrait)?`<img src="${face(c)}" alt="">`:''}</div>
+      <div class="hud-san-value">${v}<small> / 100</small></div></div>${pos?`<div class="hud-order">${pos}</div>`:''}</div>`;
 }
 function npcArtHTML(n,info){if(typeof info==='number')info={val:info};return `<div class="npc-art${info&&info.now?' now':''}" data-id="${esc(n.id)}"><div class="face">${blob(n.portrait)?`<img src="${face(n)}" alt="">`:''}</div><img class="frame" src="${ART.npcFrame}" alt=""><div class="name">${esc(n.name)}</div>${info&&info.val!=null?`<div class="ini-medal"><img src="${ART.disc}" alt=""><small>INI</small><b>${info.val}</b></div>`:''}${info&&info.now?'<div class="turn-tag">Turno</div>':''}</div>`}
 function obsFit(){const k=Math.min(innerWidth/1920,innerHeight/1080);$('stage').style.transform=`translate(${Math.max(0,(innerWidth-1920*k)/2)}px,${Math.max(0,(innerHeight-1080*k)/2)}px) scale(${k})`}
@@ -38,12 +41,12 @@ export function renderObs(){
     if(key!==S.obsLast){root.innerHTML=html;S.obsLast=key}else{
       // same people on screen: update in place so the entrance animation does not replay
       const tmp=document.createElement('div');tmp.innerHTML=html;[...root.children].forEach((el,i)=>{const n=tmp.children[i];if(!n)return;el.className=n.className;
-        el.querySelector('.hud-san-fill').style.width=n.querySelector('.hud-san-fill').style.width;
+        el.querySelector('.hud-san-arc').style.cssText=n.querySelector('.hud-san-arc').style.cssText;
         for(const sel of ['.hud-san-value','.hud-label strong','.hud-label span','.hud-fx'])if(el.querySelector(sel).innerHTML!==n.querySelector(sel).innerHTML)el.querySelector(sel).innerHTML=n.querySelector(sel).innerHTML;
         const p=el.querySelector('.hud-photo'),np=n.querySelector('.hud-photo');if(p.innerHTML!==np.innerHTML)p.innerHTML=np.innerHTML;
         const om=el.querySelector('.hud-order'),nm=n.querySelector('.hud-order');if(nm&&om)om.textContent=nm.textContent;else if(nm)el.appendChild(nm);else if(om)om.remove()})}
-    const l=L.players,sz=Math.max(.2,Math.min(2.5,(l.scale??100)/100)),count=actors.length||1,used=count*724+(count-1)*12,k=Math.min(sz,1920/2172,1080/used);
-    root.style.left=Math.max(0,Math.min(l.x/100*1920,1920-2172*k))+'px';root.style.top=Math.max(0,Math.min(l.y/100*1080,1080-used*k-24))+'px';root.style.transform=`scale(${k})`;
+    const l=L.players,sz=Math.max(.2,Math.min(2.5,(l.scale??100)/100)),count=actors.length||1,used=count*HUD_H+(count-1)*12,k=Math.min(sz*HUD_K,1920/HUD_W,1080/used);
+    root.style.left=Math.max(0,Math.min(l.x/100*1920,1920-HUD_W*k))+'px';root.style.top=Math.max(0,Math.min(l.y/100*1080,1080-used*k-24))+'px';root.style.transform=`scale(${k})`;
   }
   if(obsMode==='npcs'){
     const root=$('obsNpcs'),ini=S.live.initiative||{},fight=combatOn(ini);

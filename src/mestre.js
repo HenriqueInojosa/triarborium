@@ -7,7 +7,7 @@ import { sheetHTML, wireSheet } from './ficha.js';
 import { combatOn, renderLive } from './jogador.js';
 import { msgsTabHTML, openChat } from './chat.js';
 import { ownerBox, setView } from './acesso.js';
-import { ARTIFACT_URL, hudHTML, obsTabHTML, ov, setOv } from './overlays.js';
+import { ARTIFACT_URL, HUD_W, hudHTML, obsTabHTML, ov, setOv } from './overlays.js';
 import { rnd, statMod } from './dados.js';
 import { isDead } from './ruptura.js';
 
@@ -122,7 +122,7 @@ function sceneSet(id,kind,on){
   mb.addEventListener('dragleave',e=>{const z=zoneOf(e);if(z&&!z.contains(e.relatedTarget))z.classList.remove('over')});
   mb.addEventListener('drop',e=>{const z=zoneOf(e);if(!z||!dragId)return;e.preventDefault();z.classList.remove('over');sceneSet(dragId,dragKind,z.dataset.scDrop==='in');dragId=null});
 })();
-export function scalePreview(){document.querySelectorAll('.obs-preview').forEach(p=>{if(p.firstElementChild&&p.clientWidth)p.firstElementChild.style.transform='scale('+(p.clientWidth/2172)+')'})}
+export function scalePreview(){document.querySelectorAll('.obs-preview').forEach(p=>{if(p.firstElementChild&&p.clientWidth)p.firstElementChild.style.transform='scale('+(p.clientWidth/HUD_W)+')'})}
 addEventListener('resize',scalePreview);
 /* the HUD column can change width without a window resize (layout switch, fonts, sidebar): rescale whenever it does */
 if(window.ResizeObserver){const ro=new ResizeObserver(()=>scalePreview());const hp=document.querySelector('#myHud .obs-preview');if(hp)ro.observe(hp);addEventListener('load',scalePreview)}

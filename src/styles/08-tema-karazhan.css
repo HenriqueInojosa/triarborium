@@ -58,4 +58,4 @@ footer{border-top:1px solid transparent;border-image:linear-gradient(90deg,trans
 .playerbar{background:linear-gradient(90deg,#2a1545e6,#160b28e6)}
 .myhud{display:flex;justify-content:center}
 .myhud .obs-preview{max-width:820px;background:transparent;border:0;overflow:visible;filter:drop-shadow(0 12px 24px #000a)}
-.myhud .obs-preview .hud-illustrated{filter:none}
+.myhud .obs-preview .hud-rune{filter:none}
