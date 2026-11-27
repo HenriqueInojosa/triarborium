@@ -1,0 +1,14 @@
+/* Estilos do site, na mesma ordem em que estavam no index.html (a ordem importa para a cascata). */
+@import './01-base.css';
+@import './02-cena.css';
+@import './03-mestre-cena.css';
+@import './04-tela-jogador.css';
+@import './05-layout.css';
+@import './06-ao-vivo.css';
+@import './07-mestre.css';
+@import './08-tema-karazhan.css';
+@import './09-chat.css';
+@import './10-combate.css';
+@import './11-portao.css';
+@import './12-overlays-obs.css';
+@import './13-mesa-de-dados.css';

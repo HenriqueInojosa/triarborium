@@ -1,0 +1,66 @@
+/* ---------- dice table: one felt box per seat, 2D dice that tumble in ---------- */
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.dicetray{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.dt-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dt-head h2{margin:0;font:700 18px var(--display);color:var(--gold2);letter-spacing:.04em}
+.dt-head .warn{color:var(--warn)}
+.seats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;align-items:start}
+.seat{border:1px solid var(--line);border-radius:8px;background:#0d061899;padding:8px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.seat.me{border-color:var(--line2)}
+.seat.crit{border-color:#9ff0b6;box-shadow:0 0 18px #6fc48955}
+.seat.fumble{border-color:#ff6b81;box-shadow:0 0 18px #d6525d55}
+.seat-head{display:flex;align-items:center;gap:8px;min-width:0}
+.seat-head img,.seat-head .ph,.seat-gm{width:28px;height:28px;flex:none;border-radius:50%;object-fit:cover;border:1px solid var(--line2);font-size:13px;background:var(--panel)}
+.seat-gm{display:grid;place-items:center;color:var(--gold);font-size:15px}
+.seat-head span{min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.seat-head b{font:700 13px var(--display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat-head small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat-felt{position:relative;overflow:hidden;min-height:68px;border-radius:6px;border:1px solid #6f512866;background:radial-gradient(ellipse at 50% 40%,#2a1548 0%,#160b28 70%,#0d0618 100%);box-shadow:inset 0 2px 12px #000c;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;padding:8px}
+.seat-idle{font-size:12px;color:var(--muted);font-style:italic}
+.seat-res{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.seat-lbl{font-size:13px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat-total{font:700 26px/1 var(--display);color:var(--gold2);font-variant-numeric:tabular-nums}
+.seat.crit .seat-total{color:#9ff0b6}.seat.fumble .seat-total{color:#ff8a9b}
+.seat-expr{font-size:11.5px;color:var(--muted)}
+.seat-expr em{font-style:normal;font-weight:700;color:var(--gold)}
+.seat.fresh .seat-total{animation:totalIn .45s .7s cubic-bezier(.2,.9,.3,1.4) both}
+.die{position:relative;display:inline-grid;place-items:center;width:44px;height:44px;flex:none}
+.die svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 3px 3px #000a)}
+.die polygon{fill:#2c1748;stroke:#d6ae62;stroke-width:5;stroke-linejoin:round}
+.die b{position:relative;font:700 16px var(--display);color:var(--gold2);font-variant-numeric:tabular-nums}
+.die.d4 b{transform:translateY(20%)}.die.d10 b,.die.d100 b{transform:translateY(-6%)}.die.d100 b{font-size:13px}
+.die.drop{opacity:.35}.die.drop b{text-decoration:line-through}
+.die.crit polygon{fill:#17402a;stroke:#9ff0b6}.die.crit b{color:#d9ffe4}
+.die.fumble polygon{fill:#4a1222;stroke:#ff6b81}.die.fumble b{color:#ffd0d7}
+.die.fresh{animation:dieDrop .8s cubic-bezier(.18,.9,.3,1.1) both;animation-delay:calc(var(--i,0)*70ms)}
+.roller{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.roller-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.roller-row input#dExpr{flex:1;min-width:180px}
+.qty{display:flex;align-items:center;gap:6px}
+.qty b{min-width:22px;text-align:center;font:700 17px var(--display);color:var(--gold2)}
+.dbtns{display:flex;flex-wrap:wrap;gap:6px}
+.dbtn{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 6px 4px;min-width:48px;border:1px solid var(--line);border-radius:6px;background:#120a20;color:var(--muted);font:600 12px var(--body)}
+.dbtn svg{width:26px;height:26px}
+.dbtn polygon{fill:#2c1748;stroke:#d6ae62;stroke-width:6;stroke-linejoin:round}
+.dbtn:hover{border-color:var(--gold);color:var(--gold2)}
+.dbtn:hover polygon{fill:#3a1f5e}
+.field.inline{flex-direction:row;align-items:center;gap:6px}
+.field.inline input{width:72px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{cursor:pointer;background:transparent;border:0;border-right:1px solid var(--line);color:var(--muted);padding:6px 10px;font:500 13px var(--body)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:linear-gradient(180deg,#3a1d5c,#26113f);color:var(--gold2)}
+.dlog summary{cursor:pointer;font-size:13px;color:var(--muted)}
+.dlog ol{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:auto;font-size:13px}
+.dlog li{color:var(--muted)}.dlog li b{color:var(--ink)}.dlog .t{font-size:11px;opacity:.8}
+.stat-roll{cursor:pointer;margin-top:4px;border:1px solid var(--line2);border-radius:99px;background:#1e0f33;color:var(--gold2);font:600 12.5px var(--body);padding:1px 9px;font-variant-numeric:tabular-nums}
+.stat-roll:hover{border-color:var(--gold);background:#3a1f5e}
+.dice-feed{position:fixed;z-index:44;left:max(18px,env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;width:min(300px,calc(100% - 36px));pointer-events:none}
+.dice-pop{pointer-events:auto;background:linear-gradient(170deg,#22123af2,#140a24f2);border:1px solid var(--line2);border-radius:8px;box-shadow:0 12px 34px #000c;padding:8px;animation:popIn .3s ease both;transition:opacity .35s,transform .35s}
+.dice-pop.out{opacity:0;transform:translateX(-20px)}
+.dice-pop .seat{border:0;background:transparent;padding:0}
+@keyframes dieDrop{0%{opacity:0;transform:translate(-60px,-46px) rotate(-420deg) scale(.5)}55%{opacity:1;transform:translate(6px,4px) rotate(18deg) scale(1.08)}78%{transform:translate(-2px,-1px) rotate(-6deg) scale(.97)}100%{opacity:1;transform:none}}
+@keyframes totalIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(max-width:520px){.grid3{grid-template-columns:1fr}.seats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.die.fresh,.seat.fresh .seat-total,.dice-pop{animation:none}}

@@ -43,3 +43,14 @@ OBSERVAÇÕES
   criptografados com a senha.
 - Imagens novas (retratos, referências) não sobem pelo site no plano grátis: coloque
   o arquivo na pasta assets/ e peça ao Claude para cadastrar, depois reenvie a pasta.
+
+DESENVOLVIMENTO (Vite)
+- O código fica em src/ (um arquivo por área: ficha.js, dados.js, mestre.js, overlays.js,
+  chat.js, firebase.js, ...) e o CSS em src/styles/ (importados em ordem por main.css).
+- As imagens ficam em public/assets/ e continuam publicadas em /assets/.
+- Instalar uma vez: npm install
+- Rodar localmente com recarga automática: npm run dev (abre em http://localhost:5173)
+- Gerar a versão final: npm run build (sai em dist/, que é o que o Firebase publica).
+- Publicar: basta fazer push na main; o GitHub Actions roda npm ci && npm run build e publica.
+  Cada pull request ganha um link de prévia temporário do Firebase.
+- A configuração do Firebase agora fica em src/firebase-config.js.

@@ -1,0 +1,16 @@
+/* Área do Mestre: aba Em cena (arrastar para a cena) */
+.sc-wrap{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.sc-wrap{grid-template-columns:1fr}}
+.sc-zone{border:2px dashed var(--line);border-radius:10px;padding:12px;min-height:180px;transition:border-color .15s,background .15s}
+.sc-zone.stage{border-color:var(--line2);background:radial-gradient(ellipse at 50% 0%,#a774ff22,transparent 65%),var(--inset);min-height:260px}
+.sc-zone.over{border-color:var(--gold);background:#d6ae621a}
+.sc-zone h4{margin:0 0 10px;font:700 13px var(--display);letter-spacing:.08em;color:var(--gold);text-transform:uppercase}
+.sc-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.sc-empty{color:var(--muted);font-size:14px;padding:30px 10px;text-align:center;width:100%}
+.sc-card{width:104px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:grab;user-select:none;-webkit-user-select:none;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--panel);text-align:center;font-size:13px;line-height:1.15;transition:transform .12s,border-color .12s}
+.sc-card:hover,.sc-card:focus-visible{border-color:var(--gold);transform:translateY(-2px);outline:none}
+.sc-card.dragging{opacity:.4}
+.sc-card small{color:var(--muted);font-size:11px}
+.sc-card .sc-pic{width:100%;aspect-ratio:3/4;border-radius:6px;overflow:hidden}
+.sc-card .sc-pic>img,.sc-card .sc-pic>.ph{width:100%;height:100%;object-fit:cover;border:0;border-radius:0;font-size:32px}
+.sc-zone.stage .sc-card{width:128px;border-color:var(--line2);box-shadow:0 0 14px #d6ae6233}
