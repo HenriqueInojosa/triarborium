@@ -109,7 +109,6 @@ export function renderPlayer(){
       <p class="kz-eyebrow">Triarborium · Campanha II</p>
       <h1 class="kz-title">Sombras de Karazhan</h1>
       <div class="kz-orn"><span>◆</span></div>
-      <p class="kz-lore">A torre desperta sob a lua violeta.<br>Diga seu nome à porta e reclame o seu herói.</p>
       <button class="kz-btn" data-login><span class="kz-btn-main">Atravessar o portão</span><span class="kz-btn-sub">Entrar com Google</span></button>
       <p class="kz-fine">Só você e o mestre verão a sua ficha.</p></div>`));return}
   const mine=myPub();

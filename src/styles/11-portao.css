@@ -12,8 +12,8 @@ body.kz-on .shell>header,body.kz-on footer,body.kz-on #livebar{display:none}
 .kz-card{position:relative;width:min(440px,100%);text-align:center;padding:64px clamp(20px,6vw,40px) 34px;border-radius:230px 230px 16px 16px;background:linear-gradient(180deg,#2a1247d9 0%,#150a26ee 60%,#0f0719f5 100%);border:1px solid var(--kz-gold);
   box-shadow:0 0 0 6px #110820,0 0 0 7px #6f5128,0 40px 100px #000d,inset 0 0 70px #7b3fd04d,inset 0 1px 0 #ffe9b855;backdrop-filter:blur(4px);animation:kzRise .9s cubic-bezier(.2,.8,.2,1) both}
 .kz-card:before{content:"";position:absolute;inset:10px;border-radius:220px 220px 10px 10px;border:1px solid #d6ae6240;pointer-events:none}
-.kz-crest{display:block;width:62px;height:82px;margin:0 auto 14px;object-fit:contain;border-radius:4px;border:1px solid var(--kz-gold);background:#dfc496;box-shadow:0 0 24px #b07cff88,0 0 0 4px #110820}
-.kz-crest.sm{width:44px;height:58px;margin:0}
+.kz-crest{display:block;width:72px;height:72px;margin:0 auto 14px;object-fit:cover;border-radius:50%;border:1px solid var(--kz-gold);background:#2a1d12;box-shadow:0 0 24px #b07cff88,0 0 0 4px #110820}
+.kz-crest.sm{width:52px;height:52px;margin:0}
 .kz-eyebrow{margin:0;font:600 11.5px/1.2 'Alegreya Sans',sans-serif;letter-spacing:.34em;text-transform:uppercase;color:var(--kz-gold)}
 .kz-title{margin:12px 0 0;font:900 clamp(30px,7vw,46px)/1.04 'Cinzel Decorative','Cinzel',Georgia,serif;letter-spacing:.01em;text-wrap:balance;background:linear-gradient(180deg,#fff6dc 8%,#ecc57a 52%,#a06f2c 96%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #1a0b2b) drop-shadow(0 0 22px #a774ff66)}
 .kz-title.sm{font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:clamp(26px,5vw,38px);margin:4px 0 0}
