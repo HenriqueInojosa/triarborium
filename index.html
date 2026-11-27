@@ -752,7 +752,7 @@ function sheetHTML(c,o){
         ${m?`<form class="row" data-fxform><input name="label" placeholder="Nome do efeito" maxlength="60" required aria-label="Nome do efeito"><select name="type" aria-label="Tipo"><option value="buff">Buff</option><option value="debuff">Debuff</option></select>${assets?'<input name="img" type="file" accept="image/*" aria-label="Imagem do efeito">':''}<button class="btn" type="submit">+ Adicionar efeito</button></form>`:''}</section>
       ${m?`<section class="box"><h4>${o.npc?'NPC':'Personagem'}</h4><div class="grid2"><label class="field">Nome<input data-mtext="name" value="${esc(c.name)}" maxlength="80"></label><label class="field">${o.npc?'Tipo':'Classe'}<input data-mtext="cls" value="${esc(c.cls)}" maxlength="80"></label></div>
         <div class="row">${assets?`<label class="btn">Trocar retrato<input type="file" accept="image/*" data-portrait hidden></label>`:''}
-        ${o.npc?`<button class="btn ${live.reveal&&live.reveal.id===c.id?'':'gold'}" data-act="show-npc">${live.reveal&&live.reveal.id===c.id?'Ocultar':'Mostrar'}</button><button class="btn" data-act="reveal-npc">${(ov().npcs||[]).some(n=>n.id===c.id)?'Tirar de cena (overlay)':'Colocar em cena (overlay)'}</button>`:`<button class="btn" data-act="ov-show">${ov().selected===c.id?'📺 No overlay':'📺 Mostrar no overlay'}</button>`}
+        ${o.npc?`<button class="btn" data-act="reveal-npc">${(ov().npcs||[]).some(n=>n.id===c.id)?'Tirar de cena (overlay)':'Colocar em cena (overlay)'}</button>`:`<button class="btn" data-act="ov-show">${ov().selected===c.id?'📺 No overlay':'📺 Mostrar no overlay'}</button>`}
         ${ui.confirm===c.id?`<div class="confirm">Remover ${esc(c.name)}? Isso não pode ser desfeito. <button class="btn danger" data-act="del-yes">Remover</button><button class="btn" data-act="del-no">Cancelar</button></div>`:`<button class="btn danger" data-act="del">Remover ${o.npc?'NPC':'personagem'}</button>`}</div></section>`:''}`;
   }
   if(tab==='skills'){
@@ -803,7 +803,6 @@ function wireSheet(el,ctx){
     else if(b.dataset.skilldel){write(col,c.id,{skills:(c.skills||[]).filter(s=>s.id!==b.dataset.skilldel)});re()}
     else if(b.dataset.act==='skill-add'){write(col,c.id,{skills:[...(c.skills||[]),{id:uid(),name:'Nova habilidade',description:'',dice:'',maxUses:1,usesLeft:1,playerNote:''}]});re()}
     else if(b.dataset.act==='skill-reset'){write(col,c.id,{skills:(c.skills||[]).map(s=>({...s,usesLeft:clamp(s.maxUses,1,99)}))});toast('Usos restaurados.');re()}
-    else if(b.dataset.act==='show-npc'){const on=live.reveal&&live.reveal.id===c.id;write('session','live',{reveal:on?null:{id:c.id,name:c.name||'NPC',description:c.cls||'',image:c.portrait||''}});toast(on?'NPC oculto dos jogadores.':'NPC mostrado aos jogadores.');renderLive();re()}
     else if(b.dataset.act==='reveal-npc'){const list=ov().npcs||[];const on=list.some(n=>n.id===c.id);setOv({npcs:on?list.filter(n=>n.id!==c.id):[...list,{id:c.id,name:c.name,portrait:c.portrait||''}]});toast(on?'NPC saiu de cena.':'NPC em cena.');renderLive();re()}
     else if(b.dataset.act==='ov-show'){setOv({selected:c.id,visible:true});toast('Mostrando '+c.name+' no overlay.');re()}
     else if(b.dataset.act==='del'){ui.confirm=c.id;x.rerender(true)}
@@ -1544,7 +1543,7 @@ async function decryptCol(col){const out=[];for(const r of raw[col]){const d=awa
 async function decryptAll(){if(!mkey)return;await Promise.all(['mnpcs','mrefs','marchive'].map(decryptCol));if(raw.mnotes){const n=await decObj(raw.mnotes);if(n)notesDoc=n}if(!curNpc())ui.npcSel=(data.mnpcs[0]||{}).id||null}
 let npcsLoaded=false,liveLoaded=false;
 /* drop scene entries whose NPC no longer exists (e.g. deleted before this fix) */
-function pruneScene(){if(!unlocked||!npcsLoaded||!liveLoaded)return;const ids=new Set(raw.mnpcs.map(r=>r.id)),list=ov().npcs||[];const keep=n=>n.kind==='char'||ids.has(n.id);if(list.some(n=>!keep(n)))setOv({npcs:list.filter(keep)})}
+function pruneScene(){if(!unlocked||!npcsLoaded||!liveLoaded)return;const ids=new Set(raw.mnpcs.map(r=>r.id)),list=ov().npcs||[];if(live.reveal&&ids.has(live.reveal.id))write('session','live',{reveal:null});const keep=n=>n.kind==='char'||ids.has(n.id);if(list.some(n=>!keep(n)))setOv({npcs:list.filter(keep)})}
 function startMaster(){
   if(masterSubs||!db)return;masterSubs=true;
   for(const col of ['mnpcs','mrefs','marchive'])db.collection(col).orderBy('order').onSnapshot(async s=>{raw[col]=s.docs.map(d=>({id:d.id,d:d.data()}));if(col==='mnpcs'&&!s.metadata.fromCache){npcsLoaded=true;pruneScene()}if(!mkey)return;await decryptCol(col);if(col==='mnpcs'&&!curNpc())ui.npcSel=(data.mnpcs[0]||{}).id||null;renderDesk(false)},()=>{});
