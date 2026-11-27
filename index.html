@@ -839,15 +839,17 @@ function splash(title,sub,kind){
 }
 let prevCombat=null,prevTurnKey=null;
 function combatAlerts(){
-  const ini=live.initiative||{},ents=ini.entries||[],on=ents.length>0,cur=ents[ini.turn||0],key=on&&cur?cur.id+'|'+(ini.round||1):'',mine=myPub();
+  const ini=live.initiative||{},ents=ini.entries||[],on=combatOn(ini),cur=ents[ini.turn||0],key=on&&cur?cur.id+'|'+(ini.round||1):'',mine=myPub();
   if(prevCombat===false&&on)splash('Combate!','Rolem a iniciativa. A torre não espera.','fight');
   else if(prevCombat===true&&!on)splash('Fim do combate','Respirem. Por enquanto.','end');
   else if(prevTurnKey!==null&&key&&key!==prevTurnKey&&mine&&cur.ref===mine.id)splash('Sua vez!',mine.name+', o palco é seu.','turn');
   prevCombat=on;prevTurnKey=key;
 }
+/* combat only shows to players once the master clicks "Iniciar combate" (started===false while the list is being set up) */
+const combatOn=ini=>!!ini&&(ini.entries||[]).length>0&&ini.started!==false;
 function renderLive(){
   const ini=live.initiative||{entries:[]},ents=ini.entries||[];let h='';
-  if(ents.length)h+=combatBar(ini,ents);
+  if(combatOn(ini))h+=combatBar(ini,ents);
   const sceneNpcs=ov().visible!==false?(ov().npcs||[]):[];
   if(sceneNpcs.length)h+=`<div class="panel scene${sceneNpcs.length===1?' solo':''}"><h2>Em cena</h2><div class="scene-row">${sceneNpcs.map(n=>`<figure class="scene-card" style="margin:0"><div class="scene-frame">${pic(n)}</div><figcaption class="scene-name">${esc(n.name)}</figcaption></figure>`).join('')}</div></div>`;
   if(db&&!canWrite)h=`<div class="notice"><b>Modo leitura.</b> Sua conta entrou como Visualizador, então dá para ver as fichas mas não salvar mudanças. Peça ao dono da página acesso de <b>Colaborador</b> (ou <b>Editor</b>) no menu Share.</div>`+h;
@@ -985,11 +987,11 @@ function renderDesk(force){
     const ini=live.initiative||{entries:[],round:1,turn:0},ents=ini.entries||[];
     const opts=[...data.chars.map(c=>[c,'char']),...data.mnpcs.map(c=>[c,'npc'])].filter(([c])=>!ents.some(e=>e.ref===c.id));
     h=`<div class="panel sheet"><div class="row" style="justify-content:space-between"><h2>Iniciativa · Rodada ${Number(ini.round)||1}</h2>
-      <div class="row"><button class="btn" data-ini="prev" ${ents.length?'':'disabled'}>← Turno anterior</button><button class="btn gold" data-ini="next" ${ents.length?'':'disabled'}>Próximo turno →</button></div></div>
+      <div class="row">${ents.length&&!combatOn(ini)?`<span class="hint">Montando o combate: os jogadores ainda não veem.</span><button class="btn gold" data-ini="start">⚔ Iniciar combate</button>`:`<button class="btn" data-ini="prev" ${ents.length?'':'disabled'}>← Turno anterior</button><button class="btn gold" data-ini="next" ${ents.length?'':'disabled'}>Próximo turno →</button>`}</div></div>
       <div class="row"><select id="iniAdd" aria-label="Adicionar à iniciativa"><option value="">Adicionar participante…</option>${opts.map(([c,k])=>`<option value="${k}:${esc(c.id)}">${k==='npc'?'NPC · ':''}${esc(c.name)}</option>`).join('')}</select>
       <button class="btn" data-ini="addall">+ Todos os jogadores</button><button class="btn" data-ini="sort" ${ents.length>1?'':'disabled'}>Ordenar por valor</button>
       <label class="row lbl"><input type="checkbox" id="iniNums" ${ini.showNumbers?'checked':''}> Mostrar valores aos jogadores</label>
-      <span class="grow"></span><button class="btn danger" data-ini="clear" ${ents.length?'':'disabled'}>Encerrar combate</button></div>
+      <span class="grow"></span><button class="btn danger" data-ini="clear" ${ents.length?'':'disabled'}>${ents.length&&!combatOn(ini)?'Cancelar combate':'Encerrar combate'}</button></div>
       ${ents.length?ents.map((en,i)=>`<div class="ient${i===(ini.turn||0)?' now':''}">${pic(en)}<span><b>${esc(en.name)}</b> <span class="hint">${en.kind==='npc'?'NPC':'Jogador'}</span></span><input class="num" type="number" min="-20" max="99" data-init="${esc(en.id)}" value="${Number(en.init)||0}" aria-label="Iniciativa de ${esc(en.name)}"><span class="row acts"><button class="btn sm" data-ini="up" data-id="${esc(en.id)}" ${i?'':'disabled'} aria-label="Subir">↑</button><button class="btn sm" data-ini="down" data-id="${esc(en.id)}" ${i<ents.length-1?'':'disabled'} aria-label="Descer">↓</button><button class="btn sm danger" data-ini="rm" data-id="${esc(en.id)}" aria-label="Remover">×</button></span></div>`).join(''):'<p class="empty">Nenhum combate iniciado. Adicione participantes para começar.</p>'}
       <p class="hint">Os jogadores veem a ordem e o turno atual no topo da aba Grupo.</p></div>`;
   }
@@ -1055,8 +1057,9 @@ $('mbody').addEventListener('click',async e=>{
     if(d.ini==='next'){ini.turn=(ini.turn||0)+1;if(ini.turn>=n){ini.turn=0;ini.round=(ini.round||1)+1}}
     else if(d.ini==='prev'){ini.turn=(ini.turn||0)-1;if(ini.turn<0){if((ini.round||1)>1){ini.round--;ini.turn=n-1}else ini.turn=0}}
     else if(d.ini==='sort'){const cur=ini.entries[ini.turn||0];ini.entries.sort((a,b)=>(Number(b.init)||0)-(Number(a.init)||0));ini.turn=Math.max(0,ini.entries.indexOf(cur))}
-    else if(d.ini==='clear'){ini.entries=[];ini.turn=0;ini.round=1}
-    else if(d.ini==='addall'){for(const c of data.chars)if(!ini.entries.some(x=>x.ref===c.id))ini.entries.push({id:uid(),ref:c.id,kind:'char',name:c.name,portrait:c.portrait||'',init:0})}
+    else if(d.ini==='clear'){ini.entries=[];ini.turn=0;ini.round=1;ini.started=false}
+    else if(d.ini==='start'){if(!n)return;ini.started=true;ini.turn=0;ini.round=1}
+    else if(d.ini==='addall'){if(!n)ini.started=false;for(const c of data.chars)if(!ini.entries.some(x=>x.ref===c.id))ini.entries.push({id:uid(),ref:c.id,kind:'char',name:c.name,portrait:c.portrait||'',init:0})}
     else if(d.ini==='rm'&&i>=0){ini.entries.splice(i,1);if((ini.turn||0)>=ini.entries.length)ini.turn=0}
     else if(d.ini==='up'&&i>0){[ini.entries[i-1],ini.entries[i]]=[ini.entries[i],ini.entries[i-1]]}
     else if(d.ini==='down'&&i>=0&&i<n-1){[ini.entries[i+1],ini.entries[i]]=[ini.entries[i],ini.entries[i+1]]}
@@ -1078,7 +1081,7 @@ $('mbody').addEventListener('change',async e=>{
   if(t.id==='ovSel'){setOv({selected:t.value||null});t.blur();renderDesk(true);return}
   if(t.id==='ovNpcAdd'&&t.value){const n=find('mnpcs',t.value);if(n)setOv({npcs:[...(ov().npcs||[]),{id:n.id,name:n.name,portrait:n.portrait||''}]});t.blur();renderDesk(true);renderLive();return}
   if(t.dataset.task){write('mnotes','main',{checklists:(notesDoc.checklists||[]).map(x=>x.id===t.dataset.task?{...x,done:t.checked}:x)});t.blur();renderDesk(true);return}
-  if(t.id==='iniAdd'&&t.value){const [kind,id]=[t.value.slice(0,t.value.indexOf(':')),t.value.slice(t.value.indexOf(':')+1)];const c=find(kind==='npc'?'mnpcs':'chars',id);if(!c)return;const ini=structuredClone(live.initiative||{entries:[],round:1,turn:0});ini.entries=[...(ini.entries||[]),{id:uid(),ref:c.id,kind,name:c.name,portrait:c.portrait||'',init:0}];write('session','live',{initiative:ini});t.blur();renderDesk(true);renderLive()}
+  if(t.id==='iniAdd'&&t.value){const [kind,id]=[t.value.slice(0,t.value.indexOf(':')),t.value.slice(t.value.indexOf(':')+1)];const c=find(kind==='npc'?'mnpcs':'chars',id);if(!c)return;const ini=structuredClone(live.initiative||{entries:[],round:1,turn:0});if(!(ini.entries||[]).length)ini.started=false;ini.entries=[...(ini.entries||[]),{id:uid(),ref:c.id,kind,name:c.name,portrait:c.portrait||'',init:0}];write('session','live',{initiative:ini});t.blur();renderDesk(true);renderLive()}
   else if(t.id==='iniNums'){write('session','live',{initiative:{...live.initiative,showNumbers:t.checked}});renderLive()}
   else if(t.id==='campSel'){write('mnotes','main',{activeCampaign:t.value});toast('Campanha ativa alterada.')}
   else if(t.matches('[data-refnew]')){const f=t.files[0];t.value='';if(!f)return;try{const r=await assets.upload(f);await create('mrefs',uid(),{name:f.name.replace(/\.[^.]+$/,'').slice(0,80),description:'',image:r.id,order:Date.now()});toast('Referência adicionada.')}catch(err){toast('Não foi possível enviar ('+(err.code||'erro')+').')}}
@@ -1234,7 +1237,7 @@ const LAYOUT={players:{x:0,y:63,scale:150},npcs:{x:70,y:4,scale:100},references:
 const ov=()=>Object.assign({visible:true,all:false,follow:true,selected:null,npcs:[]},live.overlay||{});
 function setOv(patch){write('session','live',{overlay:{...ov(),...patch}})}
 const sanLevel=n=>{const v=clamp(n,0,100);return v===0?'empty':v<=20?'critical':v<=50?'shaken':'stable'};
-function iniPos(id){const ini=live.initiative||{};if(!ini.showNumbers)return null;const i=(ini.entries||[]).findIndex(e=>e.ref===id);return i>=0?i+1:null}
+function iniPos(id){const ini=live.initiative||{};if(!ini.showNumbers||!combatOn(ini))return null;const i=(ini.entries||[]).findIndex(e=>e.ref===id);return i>=0?i+1:null}
 function hudHTML(c){
   const v=clamp(c.sanity??100,0,100),pos=iniPos(c.id);
   const fx=(c.effects||[]).filter(e=>blob(e.image)).slice(0,4).map((e,i)=>`<span class="hud-effect ${e.type==='debuff'?'bad':'good'}" style="grid-column:${i+1}"><img src="${blob(e.image)}" alt="${esc(e.label)}"></span>`).join('');
