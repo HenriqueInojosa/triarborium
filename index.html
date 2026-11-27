@@ -171,7 +171,18 @@ textarea{width:100%;resize:vertical;line-height:1.5}
 .san-track{height:10px;border-radius:9px;background:#120c08;overflow:hidden}
 .san-track i{display:block;height:100%;background:linear-gradient(90deg,#6f845f,var(--san))}
 .hint{font-size:13px;color:var(--muted);margin:0}
-.skill{border:1px solid var(--line);border-radius:6px;background:var(--inset);padding:12px;display:flex;flex-direction:column;gap:8px}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:10px}
+.skills-grid.edit{grid-template-columns:1fr}
+.skill{border:1px solid var(--line);border-radius:8px;background:var(--inset);padding:12px;display:flex;flex-direction:column;gap:8px}
+.skills-grid:not(.edit) .skill .desc{flex:1;font-size:14px}
+.skill.confirming{border-color:var(--gold);box-shadow:0 0 14px #d6ae6233}
+.skill-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:8px}
+.skill-foot .sk-left{font:700 16px var(--display);color:var(--gold2);font-variant-numeric:tabular-nums}
+.skill-foot .sk-left.out{color:var(--muted)}
+.skill-foot .sk-roll{margin-left:auto}
+.sk-confirm{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:8px;font-size:14px}
+.sk-confirm p{margin:0}
+.sk-confirm span{display:flex;gap:8px;flex-wrap:wrap}
 .skill-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .skill h5{margin:0;font:700 17px var(--body)}
 .dice{font-size:12px;color:var(--gold);border:1px solid var(--line);border-radius:99px;padding:1px 8px;margin-left:6px}
@@ -758,6 +769,8 @@ const fbAssets={upload:async(f,o)=>putBlob(f,{type:o&&o.type,max:900})};
 let db=null,assets=null,isMaster=false,canWrite=true,unlocked=false,masterSubs=false;
 /* who is at the table: me = signed-in person, pub = public summaries (name, portrait, owner) of every character */
 let auth=null,me=null,pub=[],pubLoaded=false,mySubId=null,mySub=null,masterCharsSub=null;
+/* this campaign tracks sanity only: flip to true to bring hit points back everywhere */
+const SHOW_HP=false;
 const SUMMARY=['name','cls','portrait','hp','hpMax','sanity','effects','order'];
 const summaryOf=c=>Object.fromEntries(SUMMARY.map(k=>[k,c[k]??(k==='effects'?[]:k==='sanity'?100:k==='order'?0:k==='portrait'||k==='cls'||k==='name'?'':0)]));
 const data={chars:[],mnpcs:[],mrefs:[],marchive:[]};
@@ -809,7 +822,7 @@ function sheetHTML(c,o){
       <section class="box"><h4>Atributos</h4><div class="stats">${st}</div></section>
       <section class="box"><h4>Recursos</h4>
         <div class="res"><span class="lbl">Classe de Armadura</span>${m?`<input class="num" type="number" min="0" max="40" data-master="ac" value="${Number(c.ac)||0}" aria-label="CA">`:`<b class="val">${Number(c.ac)||0}</b>`}</div>
-        <div class="res"><span class="lbl">Pontos de Vida</span><div class="stepper">${step('hp',Number(c.hp)||0,hpMax)}<span class="lbl">/</span>${m?`<input class="num" type="number" min="0" max="999" data-master="hpMax" value="${hpMax}" aria-label="PV máximo">`:`<b>${hpMax}</b>`}</div></div>
+        ${SHOW_HP?`<div class="res"><span class="lbl">Pontos de Vida</span><div class="stepper">${step('hp',Number(c.hp)||0,hpMax)}<span class="lbl">/</span>${m?`<input class="num" type="number" min="0" max="999" data-master="hpMax" value="${hpMax}" aria-label="PV máximo">`:`<b>${hpMax}</b>`}</div></div>`:''}
         <div class="res"><span class="lbl">Inspiração</span>${step('inspiration',Number(c.inspiration)||0,99)}</div>
         ${o.npc?'':`<div class="res" style="flex-direction:column;align-items:stretch">
           <div class="row" style="justify-content:space-between"><span class="lbl">Sanidade</span><span class="stepper"><input class="num" type="number" min="0" max="100" data-field="sanity" value="${san}" ${m?'':'disabled'} aria-label="Sanidade"><span class="lbl">/ 100</span></span></div>
@@ -825,15 +838,18 @@ function sheetHTML(c,o){
         ${ui.confirm===c.id?`<div class="confirm">Remover ${esc(c.name)}? Isso não pode ser desfeito. <button class="btn danger" data-act="del-yes">Remover</button><button class="btn" data-act="del-no">Cancelar</button></div>`:`<button class="btn danger" data-act="del">Remover ${o.npc?'NPC':'personagem'}</button>`}</div></section>`:''}`;
   }
   if(tab==='skills'){
-    body=`<p class="hint">Use “Gastar” e “Devolver” durante a cena${R?'; 🎲 rola os dados da habilidade já com o modificador':''}. ${m?'Como mestre, você também edita nome, dados, atributo, descrição e limite.':'O limite de usos é do mestre.'}</p>`+
+    body=`<p class="hint">${m?'Como mestre, você edita nome, dados, atributo, descrição e limite, e pode gastar ou devolver usos.':'Clique no dado para usar a habilidade: cada uso gasta 1 carga. O mestre restaura os usos.'}</p><div class="skills-grid${m?' edit':''}">`+
     ((c.skills||[]).map(s=>{const max=clamp(s.maxUses,1,99),left=clamp(s.usesLeft??max,0,max);
-      const rp=R?skillParse(s,c):null,rollBtn=rp?`<button class="btn sm gold" data-roll-skill="${esc(s.id)}" title="Rolar ${esc(s.name||'Habilidade')}">🎲 ${esc(exprOf(rp))}</button>`:'';
+      const fin=max<99,out=fin&&left<=0,conf=ui.skConfirm===c.id+':'+s.id;
+      const rp=R?skillParse(s,c):null,rollBtn=rp?`<button class="btn sm gold" data-roll-skill="${esc(s.id)}" title="Rolar ${esc(s.name||'Habilidade')}" ${out?'disabled':''}>🎲 ${esc(exprOf(rp))}</button>`:(R&&fin?`<button class="btn sm gold" data-roll-skill="${esc(s.id)}" ${out?'disabled':''}>Usar</button>`:'');
       const pips=max<=10?`<span class="pips">${Array.from({length:max},(_,i)=>`<i class="pip${i<left?'':' off'}"></i>`).join('')}</span>`:'';
       const head=m?`<div class="grid2" style="width:100%"><label class="field">Nome<input data-skill="name" data-id="${esc(s.id)}" value="${esc(s.name)}"></label><div class="grid3"><label class="field">Dados<input data-skill="dice" data-id="${esc(s.id)}" value="${esc(s.dice)}" placeholder="1d8+2"></label><label class="field">Atributo<select data-skill="stat" data-id="${esc(s.id)}"><option value="">—</option>${STATS.map(([k,n])=>`<option value="${k}"${s.stat===k?' selected':''}>${n}</option>`).join('')}</select></label><label class="field">Usos máx.<input type="number" min="1" max="99" data-skill="maxUses" data-id="${esc(s.id)}" value="${max}"></label></div></div>`:`<h5>${esc(s.name||'Habilidade')}${s.dice?`<span class="dice">${esc(s.dice)}</span>`:''}</h5>`;
-      return `<div class="skill"><div class="skill-top">${head}<div class="uses">${rollBtn}${pips}<button class="btn sm" data-use="${esc(s.id)}" data-d="-1" ${!edit||left===0?'disabled':''}>− Gastar</button><b>${max>=99?'∞':left+'/'+max}</b><button class="btn sm" data-use="${esc(s.id)}" data-d="1" ${!edit||left===max?'disabled':''}>+ Devolver</button></div></div>
+      const foot=conf?`<div class="sk-confirm"><p>Usar <b>${esc(s.name||'Habilidade')}</b>? Gasta 1 uso (restam ${left} de ${max}).</p><span><button class="btn sm gold" data-skgo="${esc(s.id)}">${rp?'🎲 Rolar e gastar':'Usar'}</button><button class="btn sm" data-act="sk-no">Cancelar</button></span></div>`
+        :`<div class="skill-foot">${pips}<b class="sk-left${out?' out':''}">${fin?left+'/'+max:'∞'}</b>${m?`<button class="btn sm" data-use="${esc(s.id)}" data-d="-1" ${left===0?'disabled':''}>− Gastar</button><button class="btn sm" data-use="${esc(s.id)}" data-d="1" ${left===max?'disabled':''}>+ Devolver</button>`:''}<span class="sk-roll">${rollBtn}</span></div>`;
+      return `<div class="skill${conf?' confirming':''}"><div class="skill-top">${head}</div>
         ${m?`<label class="field">Descrição<textarea rows="3" data-skill="description" data-id="${esc(s.id)}">${esc(s.description)}</textarea></label>`:`<p class="desc">${esc(s.description||'Sem descrição')}</p>`}
-        ${o.npc?'':`<label class="field">Observações do jogador<textarea rows="2" data-skill="playerNote" data-id="${esc(s.id)}" ${edit?'':'disabled'} placeholder="Dúvidas, situações de uso…">${esc(s.playerNote)}</textarea></label>`}
-        ${m?`<div><button class="btn sm danger" data-skilldel="${esc(s.id)}">Remover habilidade</button></div>`:''}</div>`}).join('')||'<p class="empty">Nenhuma habilidade cadastrada.</p>')+
+        ${foot}
+        ${m?`<div><button class="btn sm danger" data-skilldel="${esc(s.id)}">Remover habilidade</button></div>`:''}</div>`}).join('')||'<p class="empty">Nenhuma habilidade cadastrada.</p>')+'</div>'+
     (m?`<div class="row"><button class="btn" data-act="skill-add">+ Nova habilidade</button><button class="btn" data-act="skill-reset">Restaurar todos os usos</button></div>`:'');
   }
   if(tab==='inv'){
@@ -858,13 +874,25 @@ function wireSheet(el,ctx){
     const x=ctx();if(!x||!x.c)return;const {col,c}=x;const b=e.target.closest('button');if(!b||(b.type==='submit'&&b.form))return;
     if(b.dataset.tab){x.setTab(b.dataset.tab);x.rerender(true);return}
     if(b.dataset.act==='mine'){ui.mine=c.id===ui.mine?null:c.id;store.set('tri-mine',ui.mine);render();return}
-    if(b.dataset.rollStat||b.dataset.rollSkill){sheetRoll(col,c,b.dataset);return}
+    if(b.dataset.act==='sk-no'){ui.skConfirm=null;x.rerender(false);return}
+    if(b.dataset.rollSkill||b.dataset.skgo){
+      /* using a skill spends one charge: ask first, then roll (or just spend, for skills without dice) */
+      const id=b.dataset.rollSkill||b.dataset.skgo,sk=(c.skills||[]).find(y=>y.id===id);if(!sk)return;
+      const max=clamp(sk.maxUses,1,99),left=clamp(sk.usesLeft??max,0,max);
+      if(!canRollFor(col,c)){toast('Só o dono do personagem e o mestre usam esta ficha.');return}
+      if(max>=99){sheetRoll(col,c,{rollSkill:id});return}
+      if(left<=0){ui.skConfirm=null;toast('Sem usos restantes. Peça ao mestre para restaurar.');x.rerender(false);return}
+      if(b.dataset.rollSkill){ui.skConfirm=c.id+':'+id;x.rerender(false);return}
+      ui.skConfirm=null;const skills=structuredClone(c.skills||[]);skills.find(y=>y.id===id).usesLeft=left-1;write(col,c.id,{skills});
+      if(skillParse(sk,c))sheetRoll(col,c,{rollSkill:id});else toast((sk.name||'Habilidade')+' usada.');
+      x.rerender(false);return}
+    if(b.dataset.rollStat){sheetRoll(col,c,b.dataset);return}
     if(!x.edit)return;
     const re=()=>x.rerender(false);
     if((b.dataset.step||b.dataset.san||b.dataset.itemdel||b.dataset.act==='item-add')&&!x.m)return;
     if(b.dataset.step){const k=b.dataset.step,max=k==='hp'?(Number(c.hpMax)||0):99;write(col,c.id,{[k]:clamp((Number(c[k])||0)+Number(b.dataset.d),0,max)});re()}
     else if(b.dataset.san){write(col,c.id,{sanity:clamp((c.sanity??100)+Number(b.dataset.san),0,100)});re()}
-    else if(b.dataset.use){const skills=structuredClone(c.skills||[]);const s=skills.find(y=>y.id===b.dataset.use);if(!s)return;const max=clamp(s.maxUses,1,99);s.usesLeft=clamp((s.usesLeft??max)+Number(b.dataset.d),0,max);write(col,c.id,{skills});re()}
+    else if(b.dataset.use&&x.m){const skills=structuredClone(c.skills||[]);const s=skills.find(y=>y.id===b.dataset.use);if(!s)return;const max=clamp(s.maxUses,1,99);s.usesLeft=clamp((s.usesLeft??max)+Number(b.dataset.d),0,max);write(col,c.id,{skills});re()}
     else if(b.dataset.itemdel){write(col,c.id,{items:(c.items||[]).filter(i=>i.id!==b.dataset.itemdel)});re()}
     else if(b.dataset.act==='item-add'){if((c.items||[]).length>=300){toast('Limite de 300 itens.');return}write(col,c.id,{items:[...(c.items||[]),{id:uid(),name:'Novo item',qty:1,used:false,notes:''}]});re()}
     else if(!x.m)return;
@@ -908,7 +936,7 @@ function combatBar(ini,ents){
   const turn=Math.min(ini.turn||0,ents.length-1),mine=myPub(),cur=ents[turn];const myTurn=!!(mine&&cur&&cur.ref===mine.id);
   const tiles=ents.map((en,i)=>{const p=en.kind==='char'?pub.find(x=>x.id===en.ref):null,hpMax=p?Number(p.hpMax)||0:0,hp=p?Number(p.hp)||0:0;
     const cls=['cbt',en.kind==='npc'?'foe':'ally',i===turn?'now':'',i<turn?'done':'',mine&&en.ref===mine.id?'me':''].join(' ');
-    return `<div class="${cls}" title="${esc(en.name)}">${i===turn?'<span class="cbt-mark">▼</span>':''}<span class="cbt-frame">${pic(en)}</span>${hpMax?`<span class="cbt-hp"><i style="width:${Math.round(hp/hpMax*100)}%"></i></span>`:''}<span class="cbt-name">${esc(String(en.name||'').split(' ')[0])}</span>${ini.showNumbers?`<span class="cbt-n">${Number(en.init)||0}</span>`:''}</div>`}).join('');
+    return `<div class="${cls}" title="${esc(en.name)}">${i===turn?'<span class="cbt-mark">▼</span>':''}<span class="cbt-frame">${pic(en)}</span>${SHOW_HP&&hpMax?`<span class="cbt-hp"><i style="width:${Math.round(hp/hpMax*100)}%"></i></span>`:''}<span class="cbt-name">${esc(String(en.name||'').split(' ')[0])}</span>${ini.showNumbers?`<span class="cbt-n">${Number(en.init)||0}</span>`:''}</div>`}).join('');
   return `<div class="combat${myTurn?' myturn':''}" role="status" aria-live="polite"><div class="cbt-round"><small>Rodada</small><b>${Number(ini.round)||1}</b></div><div class="cbt-track">${tiles}</div>
     <div class="cbt-now"><small>${myTurn?'É a sua vez':'Turno de'}</small><b>${esc(cur?cur.name:'')}</b>${unlocked&&canWrite?`<span class="row"><button class="btn sm" data-turn="prev" aria-label="Turno anterior">◀</button><button class="btn gold sm" data-turn="next">Passar turno ▶</button></span>`:''}</div></div>`;
 }
@@ -949,7 +977,7 @@ function renderRoster(){
   $('count').textContent=cs.length?cs.length+(cs.length===1?' personagem':' personagens'):'';
   if(!cs.length){$('roster').innerHTML='<p class="empty">Nenhuma ficha ainda.'+(isMaster?' Adicione o HTML de uma ficha individual abaixo.':' O mestre vai adicionar as fichas.')+'</p>';return}
   $('roster').innerHTML=cs.map(c=>{const hpMax=Number(c.hpMax)||0,hp=Number(c.hp)||0,san=clamp(c.sanity??100,0,100);
-    return `<button class="pc${c.id===ui.sel?' active':''}" data-pick="${esc(c.id)}">${pic(c)}<span style="min-width:0"><span class="pc-name">${esc(c.name)}${c.id===ui.mine?'<span class="mine">você</span>':''}</span><br><span class="pc-cls">${esc(c.cls||'Aventureiro')} · PV ${hp}/${hpMax} · San ${san}</span><span class="bars"><span class="bar hp"><i style="width:${hpMax?Math.round(hp/hpMax*100):0}%"></i></span><span class="bar san"><i style="width:${san}%"></i></span></span></span></button>`}).join('');
+    return `<button class="pc${c.id===ui.sel?' active':''}" data-pick="${esc(c.id)}">${pic(c)}<span style="min-width:0"><span class="pc-name">${esc(c.name)}${c.id===ui.mine?'<span class="mine">você</span>':''}</span><br><span class="pc-cls">${esc(c.cls||'Aventureiro')}${SHOW_HP?` · PV ${hp}/${hpMax}`:''} · San ${san}</span><span class="bars"><span class="bar hp"${SHOW_HP?'':' hidden'}><i style="width:${hpMax?Math.round(hp/hpMax*100):0}%"></i></span><span class="bar san"><i style="width:${san}%"></i></span></span></span></button>`}).join('');
 }
 function renderSheet(force){
   const c=curChar(),el=$('sheet');
@@ -1059,13 +1087,13 @@ function renderDesk(force){
           ${tasks.length?tasks.map(t=>`<div class="task${t.done?' done':''}"><label class="row" style="flex:1;min-width:0"><input type="checkbox" data-task="${esc(t.id)}" ${t.done?'checked':''}><span>${esc(t.label)}</span></label><button class="btn sm" data-taskdel="${esc(t.id)}" aria-label="Remover tarefa">×</button></div>`).join('')+(tasks.some(t=>t.done)?'<div><button class="btn sm" data-taskclear>Limpar concluídas</button></div>':''):'<p class="empty">Nenhuma tarefa. Anote o que preparar para a sessão.</p>'}</section>
         <section class="panel sheet"><h2>Arquivo recente</h2>${recent.map(a=>`<button class="pc" style="grid-template-columns:1fr" data-goarch="${esc(a.id)}"><span class="pc-name">${esc(a.title||'Sem título')}</span>${a.updatedAt?`<span class="pc-cls">editado ${new Date(a.updatedAt).toLocaleDateString('pt-BR')}</span>`:''}</button>`).join('')||'<p class="empty">Arquivo vazio.</p>'}<button class="btn" data-go="arch">Abrir arquivo</button></section>
       </div>
-      <section class="panel sheet"><h2>Estado do grupo</h2><div class="ptable">${data.chars.map(c=>{const san=clamp(c.sanity??100,0,100),hpMax=Number(c.hpMax)||0;return `<div class="prow">${pic(c)}<b>${esc(c.name)}</b><span class="hint">PV ${Number(c.hp)||0}/${hpMax}</span><span class="${san<=25?'crit':san<=50?'warnv':'hint'}">San ${san}</span><span class="hint">${(c.effects||[]).map(e=>esc(e.label)).join(', ')}</span></div>`}).join('')}</div></section>
+      <section class="panel sheet"><h2>Estado do grupo</h2><div class="ptable">${data.chars.map(c=>{const san=clamp(c.sanity??100,0,100),hpMax=Number(c.hpMax)||0;return `<div class="prow">${pic(c)}<b>${esc(c.name)}</b>${SHOW_HP?`<span class="hint">PV ${Number(c.hp)||0}/${hpMax}</span>`:''}<span class="${san<=25?'crit':san<=50?'warnv':'hint'}">San ${san}</span><span class="hint">${(c.effects||[]).map(e=>esc(e.label)).join(', ')}</span></div>`}).join('')}</div></section>
     </div>`;
   }
   if(ui.mtab==='players'){
     if(!find('chars',ui.mpSel))ui.mpSel=(find('chars',ov().selected)||data.chars[0]||{}).id||null;
     const c=find('chars',ui.mpSel),o=ov();
-    const list=data.chars.map(x=>{const hpMax=Number(x.hpMax)||0,san=clamp(x.sanity??100,0,100);return `<button class="pc${x.id===ui.mpSel?' active':''}" data-mp="${esc(x.id)}">${pic(x)}<span style="min-width:0"><span class="pc-name">${esc(x.name)}${o.selected===x.id&&o.visible!==false?'<span class="mine">no ar</span>':''}</span><br><span class="pc-cls">${esc(x.cls||'Aventureiro')} · PV ${Number(x.hp)||0}/${hpMax} · San ${san}</span><span class="bars"><span class="bar hp"><i style="width:${hpMax?Math.round((Number(x.hp)||0)/hpMax*100):0}%"></i></span><span class="bar san"><i style="width:${san}%"></i></span></span></span></button>`}).join('')||'<p class="empty">Nenhuma ficha.</p>';
+    const list=data.chars.map(x=>{const hpMax=Number(x.hpMax)||0,san=clamp(x.sanity??100,0,100);return `<button class="pc${x.id===ui.mpSel?' active':''}" data-mp="${esc(x.id)}">${pic(x)}<span style="min-width:0"><span class="pc-name">${esc(x.name)}${o.selected===x.id&&o.visible!==false?'<span class="mine">no ar</span>':''}</span><br><span class="pc-cls">${esc(x.cls||'Aventureiro')}${SHOW_HP?` · PV ${Number(x.hp)||0}/${hpMax}`:''} · San ${san}</span><span class="bars"><span class="bar hp"${SHOW_HP?'':' hidden'}><i style="width:${hpMax?Math.round((Number(x.hp)||0)/hpMax*100):0}%"></i></span><span class="bar san"><i style="width:${san}%"></i></span></span></span></button>`}).join('')||'<p class="empty">Nenhuma ficha.</p>';
     const onAir=c&&o.selected===c.id&&o.visible!==false;
     const prev=c?`<section class="panel sheet" style="gap:10px"><div class="row" style="justify-content:space-between"><h2>Overlay</h2><div class="row">${onAir?'<span class="hint">📺 No ar no OBS</span>':`<button class="btn gold" data-act="mp-air">📺 Mostrar no overlay</button>`}<label class="row lbl"><input type="checkbox" id="ovFollow" ${o.follow!==false?'checked':''}> Seguir a ficha aberta</label></div></div><div class="obs-preview" id="obsPreview">${hudHTML(c)}</div></section>`:'';
     const sheet=c?sheetHTML(c,{col:'chars',m:canWrite,edit:canWrite,tab:ui.mpTab,notesKey:'playerNotes',histKey:'playerHistory',desk:true}):'<div class="empty">Escolha um jogador.</div>';
@@ -1087,9 +1115,9 @@ function renderDesk(force){
   }
   if(ui.mtab==='npcs'){
     const n=curNpc();
-    h=`<div class="layout"><aside class="panel roster"><div class="roster-head"><h2>NPCs</h2><button class="btn sm" data-act="npc-add">+ Novo</button></div><div class="list">${data.mnpcs.map(c=>`<button class="pc${c.id===ui.npcSel?' active':''}" data-npc="${esc(c.id)}">${pic(c)}<span style="min-width:0"><span class="pc-name">${esc(c.name)}</span><br><span class="pc-cls">${esc(c.cls||'NPC')} · PV ${Number(c.hp)||0}/${Number(c.hpMax)||0}</span></span></button>`).join('')||'<p class="empty">Nenhum NPC.</p>'}</div></aside>
+    h=`<div class="layout"><aside class="panel roster"><div class="roster-head"><h2>NPCs</h2><button class="btn sm" data-act="npc-add">+ Novo</button></div><div class="list">${data.mnpcs.map(c=>`<button class="pc${c.id===ui.npcSel?' active':''}" data-npc="${esc(c.id)}">${pic(c)}<span style="min-width:0"><span class="pc-name">${esc(c.name)}</span><br><span class="pc-cls">${esc(c.cls||'NPC')}${SHOW_HP?` · PV ${Number(c.hp)||0}/${Number(c.hpMax)||0}`:''}</span></span></button>`).join('')||'<p class="empty">Nenhum NPC.</p>'}</div></aside>
       <main class="panel sheet" id="npcSheet">${n?sheetHTML(n,{col:'mnpcs',m:true,edit:true,tab:ui.npcTab,notesKey:'notes',histKey:'history',npc:true}):'<div class="empty">Escolha um NPC.</div>'}</main></div>`;
-    if(!force&&$('npcSheet')){paint($('npcSheet'),n?sheetHTML(n,{col:'mnpcs',m:true,edit:true,tab:ui.npcTab,notesKey:'notes',histKey:'history',npc:true}):'<div class="empty">Escolha um NPC.</div>');const l=el.querySelector('.roster .list');if(l)l.innerHTML=data.mnpcs.map(c=>`<button class="pc${c.id===ui.npcSel?' active':''}" data-npc="${esc(c.id)}">${pic(c)}<span style="min-width:0"><span class="pc-name">${esc(c.name)}</span><br><span class="pc-cls">${esc(c.cls||'NPC')} · PV ${Number(c.hp)||0}/${Number(c.hpMax)||0}</span></span></button>`).join('');return}
+    if(!force&&$('npcSheet')){paint($('npcSheet'),n?sheetHTML(n,{col:'mnpcs',m:true,edit:true,tab:ui.npcTab,notesKey:'notes',histKey:'history',npc:true}):'<div class="empty">Escolha um NPC.</div>');const l=el.querySelector('.roster .list');if(l)l.innerHTML=data.mnpcs.map(c=>`<button class="pc${c.id===ui.npcSel?' active':''}" data-npc="${esc(c.id)}">${pic(c)}<span style="min-width:0"><span class="pc-name">${esc(c.name)}</span><br><span class="pc-cls">${esc(c.cls||'NPC')}${SHOW_HP?` · PV ${Number(c.hp)||0}/${Number(c.hpMax)||0}`:''}</span></span></button>`).join('');return}
   }
   if(ui.mtab==='refs'){
     const on=live.reveal&&live.reveal.id;
