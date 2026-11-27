@@ -904,7 +904,7 @@ function renderPlayer(){
       <div class="kz-pickhead"><img class="kz-crest sm" src="${crest}" alt=""><div><p class="kz-eyebrow">Bem-vindo, viajante</p><h1 class="kz-title sm">Escolha seu herói</h1></div><button class="kz-ghost" data-logout>Sair</button></div>
       <p class="kz-lore">Cada herói só pode ter um portador. Os que já atravessaram o portão aparecem apagados.</p>
       <div class="kz-grid">${pub.map(p=>{const taken=p.owner&&p.owner!==me.uid;return `<button class="kz-hero${taken?' taken':''}" data-claim="${esc(p.id)}" ${taken?'disabled':''}><span class="kz-frame">${blob(p.portrait)?`<img src="${blob(p.portrait)}" alt="">`:`<span class="ph">${esc((p.name||'?').charAt(0))}</span>`}</span><b>${esc(p.name)}</b><span class="kz-cls">${taken?'Já escolhido':esc(p.cls||'Aventureiro')}</span></button>`}).join('')||'<p class="kz-lore">O mestre ainda não cadastrou heróis.</p>'}</div></div>`));return}
-  pv.hidden=true;pv._h='';lay.hidden=false;bar.hidden=false;subscribeMine(mine.id);renderMyHud();
+  pv.hidden=true;pv._h='';lay.hidden=false;bar.hidden=true;subscribeMine(mine.id);renderMyHud();
   bar.innerHTML=`<span class="hint">Jogando como <b>${esc(mine.name)}</b></span><span class="row"><button class="btn sm" data-release>Trocar personagem</button><button class="btn sm" data-logout>Sair</button></span>`;
 }
 async function claim(id){
