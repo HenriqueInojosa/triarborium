@@ -6,6 +6,13 @@ service cloud.firestore {
     function viaGoogle() { return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous'; }
     function ownsChar(id) { return signedIn() && get(/databases/$(database)/documents/public/$(id)).data.owner == request.auth.uid; }
     function onlyKeys(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+    // Teste de ruptura: com sanidade 0 (e sem estar morto), o dono salva o contador e pode voltar para sanidade 1.
+    function ruptureWrite() {
+      return onlyKeys(['rupture', 'sanity', 'updatedAt'])
+        && resource.data.get('sanity', 100) == 0
+        && request.resource.data.get('sanity', 0) in [0, 1]
+        && (resource.data.get('rupture', null) == null || resource.data.rupture.get('state', '') != 'dead');
+    }
 
     // Chave da senha do mestre: criada uma vez, nunca lida nem alterada pelo site.
     match /secret/{d} { allow create: if signedIn(); }
@@ -30,7 +37,8 @@ service cloud.firestore {
         || (viaGoogle() && resource.data.owner == null
             && request.resource.data.owner == request.auth.uid && onlyKeys(['owner', 'ownerName']))
         || (signedIn() && resource.data.owner == request.auth.uid
-            && request.resource.data.owner == null && onlyKeys(['owner', 'ownerName']));
+            && request.resource.data.owner == null && onlyKeys(['owner', 'ownerName']))
+        || (signedIn() && resource.data.owner == request.auth.uid && ruptureWrite());
     }
 
     // Ficha completa: só o dono do personagem e o mestre.
@@ -38,7 +46,7 @@ service cloud.firestore {
       allow read: if isMaster() || ownsChar(id);
       allow create, delete: if isMaster();
       allow update: if isMaster() || (ownsChar(id)
-        && onlyKeys(['skills', 'playerNotes', 'playerHistory', 'updatedAt']));
+        && (onlyKeys(['skills', 'playerNotes', 'playerHistory', 'updatedAt']) || ruptureWrite()));
     }
 
     // Imagens e arquivos (guardados no banco em pedaços). O id é aleatório.
