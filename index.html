@@ -1,4 +1,21 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style><title>Triarborium · Grupo</title>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}
+/* Em cena: palco com retratos grandes */
+.scene{position:relative;overflow:hidden;padding:18px 18px 22px;text-align:center;border-color:var(--line2);background:radial-gradient(ellipse at 50% 0%,#a774ff33,transparent 60%),radial-gradient(ellipse at 50% 100%,#d6ae6222,transparent 55%),linear-gradient(170deg,var(--panel2),var(--panel));box-shadow:0 0 0 1px #d6ae6233 inset,0 10px 40px #000a,0 0 40px #a774ff22}
+.scene>h2{font-size:26px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 16px;display:flex;align-items:center;justify-content:center;gap:14px}
+.scene>h2::before,.scene>h2::after{content:"";flex:0 1 120px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.scene>h2::after{background:linear-gradient(90deg,var(--gold),transparent)}
+.scene-row{display:flex;flex-wrap:wrap;justify-content:center;gap:22px}
+.scene-card{display:flex;flex-direction:column;align-items:center;gap:10px;width:clamp(150px,22vw,230px);animation:sceneIn .6s ease both}
+.scene-frame{position:relative;width:100%;aspect-ratio:3/4;border-radius:10px;padding:4px;background:linear-gradient(160deg,#fff1c8,#d6ae62 35%,#7a5222 70%,#e9c983);box-shadow:0 0 0 1px #0008,0 12px 30px #000c,0 0 28px #d6ae6266,0 0 60px #a774ff44;animation:sceneGlow 3.2s ease-in-out infinite}
+.scene-frame>img,.scene-frame>.ph{width:100%;height:100%;border-radius:7px;object-fit:cover;border:0;display:grid;place-items:center;font-size:64px;background:var(--inset)}
+.scene-frame::after{content:"";position:absolute;inset:4px;border-radius:7px;box-shadow:inset 0 0 30px #0009;pointer-events:none}
+.scene-name{font:700 20px var(--display);letter-spacing:.05em;color:var(--gold2);text-shadow:0 0 12px #d6ae6288,0 2px 2px #000}
+.scene.solo .scene-card{width:clamp(180px,32vw,300px)}
+.scene.solo .scene-name{font-size:24px}
+@keyframes sceneGlow{0%,100%{box-shadow:0 0 0 1px #0008,0 12px 30px #000c,0 0 22px #d6ae6255,0 0 50px #a774ff33}50%{box-shadow:0 0 0 1px #0008,0 12px 30px #000c,0 0 36px #d6ae6299,0 0 80px #a774ff66}}
+@keyframes sceneIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.scene-frame,.scene-card{animation:none}}
+</style><title>Triarborium · Grupo</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@1,500&family=Alegreya+Sans:wght@400;500;700&display=swap">
@@ -832,7 +849,7 @@ function renderLive(){
   const ini=live.initiative||{entries:[]},ents=ini.entries||[];let h='';
   if(ents.length)h+=combatBar(ini,ents);
   const sceneNpcs=ov().visible!==false?(ov().npcs||[]):[];
-  if(sceneNpcs.length)h+=`<div class="panel init"><h2>Em cena</h2>${sceneNpcs.map(n=>`<span class="chip npc">${pic(n)}${esc(n.name)}</span>`).join('')}</div>`;
+  if(sceneNpcs.length)h+=`<div class="panel scene${sceneNpcs.length===1?' solo':''}"><h2>Em cena</h2><div class="scene-row">${sceneNpcs.map(n=>`<figure class="scene-card" style="margin:0"><div class="scene-frame">${pic(n)}</div><figcaption class="scene-name">${esc(n.name)}</figcaption></figure>`).join('')}</div></div>`;
   if(db&&!canWrite)h=`<div class="notice"><b>Modo leitura.</b> Sua conta entrou como Visualizador, então dá para ver as fichas mas não salvar mudanças. Peça ao dono da página acesso de <b>Colaborador</b> (ou <b>Editor</b>) no menu Share.</div>`+h;
   const r=live.reveal;
   if(r){h+=`<div class="panel reveal">${blob(r.image)?`<img src="${blob(r.image)}" alt="${esc(r.name)}">`:'<span></span>'}<div><p class="hint">O mestre está mostrando</p><h3>${esc(r.name)}</h3>${r.description?`<p class="desc">${esc(r.description)}</p>`:''}</div></div>`}
