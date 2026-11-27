@@ -46,20 +46,34 @@
 @media (max-width:860px){.grid2.sheet3{grid-template-columns:1fr}}
 @media (min-width:1000px){
   body.pmode .shell{max-width:1400px;gap:12px}
-  body.pmode #groupView{flex-direction:row!important;flex-wrap:wrap;gap:12px!important;align-items:stretch}
-  body.pmode #livebar>*{width:100%;order:0}
-  body.pmode #myHud{order:1;flex:1 1 0;min-width:0;align-items:center}
-  body.pmode #myHud .obs-preview{max-width:660px;width:100%}
-  body.pmode #diceTray{order:2;flex:1 1 0;min-width:0;padding:10px 12px;gap:8px}
-  body.pmode #sheetLayout{order:3;width:100%}
-  body.pmode #diceTray .seats{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px}
-  body.pmode #diceTray .seat{padding:5px;gap:4px}
-  body.pmode #diceTray .seat-felt{min-height:34px}
-  body.pmode #diceTray .roller{gap:6px;padding-top:8px}
-  body.pmode #diceTray .dt-head h2{font-size:16px}
+  body.pmode #groupView{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(360px,420px);grid-template-rows:auto 1fr;gap:12px!important;align-items:stretch}
+  body.pmode #livebar>*{grid-column:1/-1}
+  body.pmode #myHud{grid-column:1;justify-content:flex-start;align-items:flex-start;padding:0}
+  body.pmode #myHud .obs-preview{max-width:700px;width:100%}
+  body.pmode #diceTray{grid-column:2;grid-row:span 2;align-self:stretch;padding:12px 14px}
+  body.pmode #diceTray #dSeats{flex:1;grid-auto-rows:1fr;align-items:stretch}
+  body.pmode #diceTray #dSeats>div,body.pmode #diceTray #dSeats .seat{height:100%}
+  body.pmode #diceTray .seat-felt{flex:1}
+  body.pmode #sheetLayout,body.pmode #sheetLayout>#sheet{height:100%}
+  body.pmode #sheetLayout{grid-column:1}
+  body.pmode #diceTray .seats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}
+  body.pmode #diceTray .seat-felt{min-height:44px}
   body.pmode #sheet{padding:12px 16px}
   body.pmode #sheet .hero{display:none}
+  body.pmode .grid2.sheet3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body.pmode .grid2.sheet3>:last-child{grid-column:1/-1}
 }
+
+/* player portrait (replaces the painted HUD on the player screen) */
+.pportrait{display:flex;align-items:center;gap:24px;padding:0 0 2px;width:100%}
+.pportrait .pp-txt{min-width:0}
+.pportrait .scene-frame{width:clamp(150px,11vw,190px);flex:none;animation:none;box-shadow:0 0 0 1px #0008,0 10px 26px #000c,0 0 24px #d6ae6255,0 0 50px #a774ff33}
+.pportrait .pp-txt h3{margin:0;font:900 clamp(26px,3vw,40px)/1.1 'Cinzel Decorative','Cinzel',Georgia,serif;background:linear-gradient(180deg,#fff6dc 8%,#ecc57a 52%,#a06f2c 96%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 #1a0b2b) drop-shadow(0 0 16px #a774ff55)}
+.pportrait .pp-txt p{margin:6px 0 0;color:var(--muted);font-size:17px}
+body.pmode .shell{padding-bottom:96px}
+body.pmode #sheet .hero{display:none}
+@media (max-width:999px){.pportrait{gap:16px}.pportrait .scene-frame{width:120px}}
+@media (max-width:520px){.pportrait .scene-frame{width:96px}.pportrait .pp-txt h3{font-size:24px}.pportrait .pp-txt p{font-size:15px}}
 </style><title>Triarborium · Grupo</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -959,7 +973,11 @@ function renderAcct(){
   const el=$('acct');if(el&&el._h!==h){el._h=h;el.innerHTML=h}
 }
 /* the player's own painted HUD (same frame the OBS overlay uses) above their sheet */
-function renderMyHud(){const w=$('myHud'),c=curChar();if(!c){w.hidden=true;return}w.hidden=false;const box=w.firstElementChild,h=hudHTML(c);if(box._h!==h){box._h=h;box.innerHTML=h}scalePreview()}
+function renderMyHud(){const w=$('myHud'),c=curChar();if(!c){w.hidden=true;return}w.hidden=false;
+  /* player screen: just the framed portrait (health and sanity already live in the sheet below) */
+  let pp=w.querySelector('.pportrait');const solo=document.body.classList.contains('pmode');
+  if(solo){if(!pp){pp=document.createElement('div');pp.className='pportrait';w.appendChild(pp)}w.firstElementChild.hidden=true;pp.hidden=false;const ph=`<div class="scene-frame">${pic(c)}</div><div class="pp-txt"><h3>${esc(c.name||'')}</h3>${c.cls?`<p>${esc(c.cls)}</p>`:''}</div>`;if(pp._h!==ph){pp._h=ph;pp.innerHTML=ph}return}
+  if(pp)pp.hidden=true;w.firstElementChild.hidden=false;const box=w.firstElementChild,h=hudHTML(c);if(box._h!==h){box._h=h;box.innerHTML=h}scalePreview()}
 function renderPlayer(){
   renderAcct();$('myHud').hidden=true;document.body.classList.remove('pmode');
   const pv=$('playerView'),bar=$('playerBar'),lay=$('sheetLayout');
