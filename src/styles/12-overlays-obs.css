@@ -1,4 +1,4 @@
-/* OBS overlay mode (#overlay, #overlay-npcs, #overlay-referencias): the original painted HUD, ported from overlay-art.css */
+/* OBS overlay mode (#overlay, #overlay-npcs, #overlay-referencias) */
 html.obs,html.obs body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent!important;color:#f2dfc3;font-family:"Palatino Linotype","Book Antiqua",Georgia,serif;padding:0!important}
 html.obs.green,html.obs.green body{background:#00b140!important}
 html.obs .shell,html.obs .toast{display:none!important}
@@ -7,49 +7,40 @@ html.obs .shell,html.obs .toast{display:none!important}
 .obs-canvas{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:top left;pointer-events:none}
 .obs-actor-list,.npc-list{position:absolute;display:flex;transform-origin:top left;transition:opacity .4s}
 .obs-actor-list{flex-direction:column;gap:12px}
-.hud-illustrated{position:relative;width:2172px;height:724px;flex:none;isolation:isolate;animation:overlayEnter .5s ease-out both;filter:drop-shadow(0 12px 18px #0009)}
-.hud-photo{position:absolute;z-index:1;inset:0;overflow:visible;-webkit-mask-image:url('/assets/54da65f7323720fc2c00216be8643a75.png');mask-image:url('/assets/54da65f7323720fc2c00216be8643a75.png');-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
-.hud-photo img{position:absolute;left:5.27%;top:21.1%;width:15.47%;height:49.15%;object-fit:cover;object-position:50% 20%;display:block;clip-path:polygon(50% 0%,100% 21%,100% 79%,50% 100%,0% 79%,0% 21%)}
-.hud-painterly{position:absolute;z-index:4;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;animation:frameGleam 8s ease-in-out infinite}
-.hud-label{display:contents}
-.hud-label strong{position:absolute;z-index:6;left:25.6%;top:24.8%;width:30.4%;height:12.2%;display:flex;align-items:center;justify-content:flex-start;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:normal 59px/1 "Palatino Linotype","Book Antiqua",Georgia,serif;color:#f6dfbe;text-shadow:0 2px 3px #000b}
-.hud-label span{position:absolute;z-index:6;left:27.75%;top:40.2%;width:24.9%;height:6.5%;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:italic 32px/1 "Palatino Linotype","Book Antiqua",Georgia,serif;color:#e5c79b;text-shadow:0 2px 3px #000a}
-.hud-fx{position:absolute;z-index:6;left:64.23%;top:27.45%;width:21.42%;height:16.3%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:2.8%;align-items:center}
-.hud-effect{position:relative;justify-self:center;align-self:center;width:81%;height:80%;display:grid;place-items:center;overflow:hidden;padding:6px;background:#17341c6b;clip-path:polygon(13% 0%,87% 0%,100% 14%,100% 86%,87% 100%,13% 100%,0% 86%,0% 14%)}
-.hud-effect.bad{background:#42171b80}
-.hud-effect img{width:100%;height:100%;object-fit:contain;position:relative;z-index:1}
-.hud-effect:after{content:"";position:absolute;z-index:2;inset:0;border:3px solid #58b873;box-shadow:inset 0 0 9px #2b9f6988,0 0 8px #2b9f6955;clip-path:inherit}
-.hud-effect.bad:after{border-color:#d6525d;box-shadow:inset 0 0 9px #c9274477,0 0 8px #c9274455}
-.hud-order{position:absolute;z-index:7;left:87.1%;top:23%;width:8%;height:31%;display:flex;align-items:center;justify-content:center;font:bold 96px/1 "Palatino Linotype",Georgia,serif;color:#fff0d1;text-shadow:0 3px 6px #000c}
-.san-module{position:absolute;inset:0}
-.hud-san-track{position:absolute;z-index:2;left:31.63%;top:61.85%;width:44.25%;height:10%;border-radius:39px;clip-path:inset(0 round 39px);background:#1b0d1d;overflow:hidden}
-.hud-san-fill{height:100%;border-radius:39px;background:linear-gradient(90deg,#9541b8,#c26ee0);transition:width .85s cubic-bezier(.2,.75,.2,1);position:relative;animation:breath 4.2s ease-in-out infinite}
-.hud-san-fill:after{content:"";position:absolute;inset:0;background:url('/assets/550a5f2109283c8638182083bb49925f.png') repeat-x left center/620px 100%;mix-blend-mode:screen;opacity:.2;animation:paintDrift 11s linear infinite}
-.hud-san-value{position:absolute;z-index:7;left:78.3%;top:60.2%;width:8.7%;height:9.9%;display:flex;align-items:center;justify-content:center;white-space:nowrap;color:#ffe8ca;font:normal 42px/1 "Palatino Linotype","Book Antiqua",Georgia,serif;text-shadow:0 2px 5px #000a}
-.hud-san-value small{font-size:22px}
-.hud-crimson-cracks{position:absolute;z-index:3;left:29%;top:57.4%;width:44%;height:13%;opacity:0;transition:opacity .5s}
-.hud-crimson-cracks img{width:100%;height:100%;object-fit:fill}
-.hud-eye-red{position:absolute;z-index:9;inset:0;width:100%;height:100%;opacity:0;transition:opacity .6s}
-.hud-eye-glow{position:absolute;z-index:8;left:23.3%;top:55.8%;width:6.1%;height:15.2%;border-radius:50%;background:radial-gradient(ellipse,#f12d369c 0%,#c306175e 32%,transparent 72%);filter:blur(12px);mix-blend-mode:screen;opacity:0;transition:opacity .6s}
-.hud-shadow-layer{position:absolute;z-index:5;inset:-10% -3%;opacity:0;mix-blend-mode:screen;-webkit-mask-image:radial-gradient(ellipse at center,transparent 38%,#000 78%);mask-image:radial-gradient(ellipse at center,transparent 38%,#000 78%);transition:opacity .65s;filter:drop-shadow(0 2px 15px #050006)}
-.hud-shadow-img{position:absolute;width:50%;height:88%;object-fit:fill;opacity:.86;animation:shadowWander 7s ease-in-out infinite alternate}
-.hud-shadow-img.shadow-one{left:6%;top:13%}.hud-shadow-img.shadow-two{right:2%;top:15%;transform:scaleX(-1);animation:shadowWanderB 6s ease-in-out infinite alternate}
-.hud-illustrated.shaken .hud-shadow-layer{opacity:1}
-.hud-illustrated.shaken .hud-eye-red{opacity:.91;animation:eyePulse 2.4s ease-in-out infinite}
-.hud-illustrated.shaken .hud-eye-glow{opacity:.9;animation:eyePulse 2.2s ease-in-out infinite}
-.hud-illustrated.shaken .hud-san-fill{background:linear-gradient(90deg,#721a31,#da4d5c)}
-.hud-illustrated.critical .hud-photo,.hud-illustrated.critical .hud-painterly,.hud-illustrated.critical .hud-label strong,.hud-illustrated.critical .hud-label span,.hud-illustrated.critical .hud-order{filter:grayscale(.6) sepia(1) saturate(3.7) hue-rotate(308deg) brightness(.84)}
-.hud-illustrated.critical .hud-shadow-layer{opacity:1;filter:sepia(1) saturate(3.5) hue-rotate(310deg) drop-shadow(0 1px 20px #7e0614)}
-.hud-illustrated.critical .hud-eye-red,.hud-illustrated.critical .hud-eye-glow{opacity:1;animation:eyePulse 1.2s ease-in-out infinite}
-.hud-illustrated.critical .hud-san-fill{background:linear-gradient(90deg,#5f0918,#f42238);box-shadow:inset 0 0 17px #6d000a}
-.hud-illustrated.critical .hud-san-value{color:#ffb1b1;text-shadow:0 2px 7px #b50019}
-.hud-illustrated.critical .hud-crimson-cracks{opacity:.88;animation:scarPulse 2s infinite}
-.hud-illustrated.empty .hud-photo,.hud-illustrated.empty .hud-painterly,.hud-illustrated.empty .hud-label strong,.hud-illustrated.empty .hud-label span,.hud-illustrated.empty .hud-order{filter:grayscale(1) brightness(.37)}
-.hud-illustrated.empty .hud-san-track{background:#070708}
-.hud-illustrated.empty .hud-san-fill{width:0!important;animation:none}
-.hud-illustrated.empty .hud-san-value{color:#898989;text-shadow:none}
-.hud-illustrated.empty .hud-shadow-layer{opacity:.7;filter:grayscale(1) brightness(.28)}
-.hud-illustrated.empty .hud-eye-red,.hud-illustrated.empty .hud-eye-glow{opacity:1;animation:eyePulse 1.5s ease-in-out infinite}
+/* player HUD "faixa rúnica" (1080x288): sanity ring around the portrait + gilded pill, in the gate's violet/gold language */
+.hud-rune{--c2:#c08cff;--glow:#a774ff;--num:#f7e2ad;position:relative;width:1080px;height:288px;flex:none;isolation:isolate;animation:overlayEnter .5s ease-out both;filter:drop-shadow(0 12px 18px #0009);color:#efe6ff}
+.hud-rune.san-shaken{--c2:#e0558e;--glow:#e0558e}
+.hud-rune.san-critical{--c2:#f42238;--glow:#ff2a3c;--num:#ffb1b1}
+.hud-rune.san-empty{--c2:#555;--glow:#0000;--num:#8a8a8a}
+.hud-pill{position:absolute;left:144px;top:70px;width:936px;height:148px;display:flex;align-items:center;gap:24px;padding:0 50px 0 180px;border-radius:999px;
+  background:linear-gradient(180deg,#1d0d33f0,#12081ff0);border:1px solid #d6ae62;box-shadow:0 0 0 5px #0c0614,0 0 0 6px #a774ff88,0 0 36px #a774ff66,inset 0 0 22px #a774ff44}
+.hud-label{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.hud-label strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 46px/1.1 'Cinzel',Georgia,serif;background:linear-gradient(180deg,#fff6dc 8%,#ecc57a 52%,#a06f2c 96%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #1a0b2b)}
+.hud-label span{display:flex;align-items:center;gap:14px;white-space:nowrap;overflow:hidden;font:600 16px/1.2 'Alegreya Sans',sans-serif;letter-spacing:.34em;text-transform:uppercase;color:#c9b3ea}
+.hud-label span:after{content:"";flex:1;max-width:240px;height:1px;background:linear-gradient(90deg,#cfaeff,transparent);box-shadow:0 0 6px #a774ff}
+.hud-fx{display:flex;gap:12px;flex:none}
+.hud-effect{width:56px;height:56px;border-radius:50%;overflow:hidden;border:2px solid #58b873;background:#0c0614;box-shadow:0 0 12px #2b9f6988,inset 0 0 8px #000}
+.hud-effect.bad{border-color:#d6525d;box-shadow:0 0 12px #c9274488,inset 0 0 8px #000}
+.hud-effect img{display:block;width:100%;height:100%;object-fit:cover}
+.hud-ring{position:absolute;z-index:2;left:0;top:0;width:288px;height:288px}
+.hud-ring svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.hud-ring-bed{stroke:#0a0512;stroke-width:17}
+.hud-ring-line{stroke:#6f5128;stroke-width:1.2}
+.hud-ring-gold{stroke:#d6ae62;stroke-width:1.5}
+.hud-san-arc{stroke:var(--c2);stroke-width:12;stroke-linecap:round;filter:drop-shadow(0 0 7px var(--glow)) drop-shadow(0 0 16px var(--glow));transition:stroke-dasharray .85s cubic-bezier(.2,.75,.2,1),stroke .5s;animation:breath 4.2s ease-in-out infinite}
+.hud-rune.san-empty .hud-san-arc{opacity:0;animation:none}
+.hud-photo{position:absolute;inset:36px;border-radius:50%;padding:4px;background:linear-gradient(180deg,#f7e2ad,#8a6430);box-shadow:0 0 0 5px #0c0614}
+.hud-photo:empty{background:#1a0d2b}
+.hud-photo img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:50% 20%;transition:filter .6s}
+.hud-san-value{position:absolute;z-index:3;left:50%;bottom:-8px;translate:-50% 0;padding:4px 18px;border-radius:99px;background:#12081f;border:1px solid #d6ae62;white-space:nowrap;font:700 27px/1.1 'Cinzel',Georgia,serif;color:var(--num);box-shadow:0 0 16px color-mix(in srgb,var(--glow) 70%,transparent)}
+.hud-san-value small{font-size:16px;color:#b7a3d6}
+.hud-order{position:absolute;z-index:3;left:10px;top:10px;width:64px;height:64px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,#2a1645,#0c0614);border:1.5px solid #d6ae62;font:700 32px/1 'Cinzel',Georgia,serif;color:#f7e2ad;box-shadow:0 0 0 4px #110820,0 0 18px #a774ff88}
+.hud-rune.san-shaken .hud-san-arc{animation:eyePulse 2.4s ease-in-out infinite}
+.hud-rune.san-critical .hud-san-arc{animation:eyePulse 1.2s ease-in-out infinite}
+.hud-rune.san-critical .hud-photo img{filter:sepia(.6) saturate(1.6) hue-rotate(-30deg) brightness(.8)}
+.hud-rune.san-critical .hud-pill{box-shadow:0 0 0 5px #0c0614,0 0 0 6px #ff2a3c88,0 0 36px #ff2a3c55,inset 0 0 22px #ff2a3c33}
+.hud-rune.san-empty .hud-photo img{filter:grayscale(1) brightness(.4)}
+.hud-rune.san-empty .hud-pill{box-shadow:0 0 0 5px #0c0614,0 0 0 6px #6c6c7866,inset 0 0 22px #0000}
 #obsNpcs.fight{width:max-content;max-width:1500px;padding-top:0;display:block}
 #obsNpcs.fight .combat{position:static;box-shadow:0 14px 40px #000c}
 #obsNpcs.fight .cbt-track{overflow:visible}
@@ -77,8 +68,8 @@ html.obs .shell,html.obs .toast{display:none!important}
 .reference-art .window img{display:block;width:100%;height:100%;object-fit:contain}
 .reference-art .frame{position:absolute;z-index:2;inset:0;width:100%;height:100%;object-fit:contain;animation:frameGleam 9s ease-in-out infinite}
 .reference-art .caption{position:absolute;z-index:3;left:23.3%;top:80.6%;width:53.4%;height:12.3%;display:grid;place-items:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:normal 45px/1 "Palatino Linotype","Book Antiqua",Georgia,serif;color:#f4dfbe;text-shadow:0 2px 4px #000b}
-.obs-preview{position:relative;width:100%;max-width:560px;aspect-ratio:2172/724;overflow:hidden;border:1px solid var(--line);border-radius:6px;background:#0b0705}
-.obs-preview .hud-illustrated{position:absolute;left:0;top:0;transform-origin:top left;animation:none}
+.obs-preview{position:relative;width:100%;max-width:560px;aspect-ratio:1080/288;overflow:hidden;border:1px solid var(--line);border-radius:6px;background:#0b0705}
+.obs-preview .hud-rune{position:absolute;left:0;top:0;transform-origin:top left;animation:none}
 .linkrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .linkrow code{flex:1;min-width:0;overflow-wrap:anywhere;background:#150e0a;border:1px solid var(--line);border-radius:5px;padding:6px 8px;font-size:13px}
 .notice{border:1px solid var(--warn);background:#3a2615;border-radius:8px;padding:12px 14px;color:var(--ink)}
@@ -90,4 +81,4 @@ html.obs .shell,html.obs .toast{display:none!important}
 @keyframes scarPulse{0%,100%{opacity:.24}50%{opacity:.82}}
 @keyframes breath{50%{filter:brightness(1.15)}}
 @keyframes frameGleam{0%,100%{filter:brightness(1)}50%{filter:brightness(1.09)}}
-@media(prefers-reduced-motion:reduce){.hud-illustrated *,.npc-art *,.reference-art *,.hud-illustrated,.npc-art,.reference-art{animation:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){.hud-rune *,.npc-art *,.reference-art *,.hud-rune,.npc-art,.reference-art{animation:none!important;transition:none!important}}
