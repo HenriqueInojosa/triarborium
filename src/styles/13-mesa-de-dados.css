@@ -64,3 +64,5 @@
 @keyframes popIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media(max-width:520px){.grid3{grid-template-columns:1fr}.seats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.die.fresh,.seat.fresh .seat-total,.dice-pop{animation:none}}
+/* tela de entrada: não mostra os dados rolados pelos outros */
+body.kz-on .dice-feed{display:none}

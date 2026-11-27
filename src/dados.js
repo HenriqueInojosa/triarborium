@@ -141,7 +141,8 @@ export function animateDice(root){
 function trayInView(){const t=$('diceTray');if(!t||t.hidden||$('groupView').hidden)return false;const b=t.getBoundingClientRect();return b.bottom>80&&b.top<innerHeight-80}
 /* a roll that lands while the table is off screen pops up in the corner */
 function announce(r){
-  if(obsMode||trayInView())return;const f=$('diceFeed');if(!f)return;
+  // na tela de entrada (antes de logar ou escolher personagem) os dados rolados não aparecem
+  if(obsMode||trayInView()||document.body.classList.contains('kz-on'))return;const f=$('diceFeed');if(!f)return;
   const seat=seatList().find(s=>s.id===r.charId)||{id:String(r.charId||''),name:r.who||'?'};
   const el=document.createElement('div');el.className='dice-pop';el.style.cursor='pointer';el.title='Abrir a mesa de dados';el.innerHTML=seatHTML(seat,r,false);
   el.addEventListener('click',()=>{if(ui.view!=='group')setView('group');const t=$('diceTray');if(!t.hidden)t.scrollIntoView({behavior:'smooth',block:'center'})});
