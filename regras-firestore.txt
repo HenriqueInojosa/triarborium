@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isMaster() { return signedIn() && exists(/databases/$(database)/documents/masters/$(request.auth.uid)); }
+    function viaGoogle() { return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous'; }
+    function ownsChar(id) { return signedIn() && get(/databases/$(database)/documents/public/$(id)).data.owner == request.auth.uid; }
+    function onlyKeys(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+
+    // Chave da senha do mestre: criada uma vez, nunca lida nem alterada pelo site.
+    match /secret/{d} { allow create: if signedIn(); }
+
+    // Um aparelho vira "mestre" só se provar a senha (mesma chave do secret/master).
+    match /masters/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.key == get(/databases/$(database)/documents/secret/master).data.key;
+    }
+
+    match /mcrypt/{d} { allow read: if signedIn(); }
+
+    // Iniciativa, overlay, referência mostrada: todos leem, só o mestre muda.
+    match /session/{d} { allow read: if signedIn(); allow write: if isMaster(); }
+
+    // Resumo público (nome, retrato, sanidade...) e quem escolheu cada personagem.
+    match /public/{id} {
+      allow read: if signedIn();
+      allow create, delete: if isMaster();
+      allow update: if isMaster()
+        || (viaGoogle() && resource.data.owner == null
+            && request.resource.data.owner == request.auth.uid && onlyKeys(['owner', 'ownerName']))
+        || (signedIn() && resource.data.owner == request.auth.uid
+            && request.resource.data.owner == null && onlyKeys(['owner', 'ownerName']));
+    }
+
+    // Ficha completa: só o dono do personagem e o mestre.
+    match /chars/{id} {
+      allow read: if isMaster() || ownsChar(id);
+      allow create, delete: if isMaster();
+      allow update: if isMaster() || (ownsChar(id)
+        && onlyKeys(['skills', 'playerNotes', 'playerHistory', 'updatedAt']));
+    }
+
+    // Imagens e arquivos (guardados no banco em pedaços). O id é aleatório.
+    match /blobs/{id} {
+      allow read: if signedIn();
+      allow create: if isMaster() || viaGoogle();
+      allow delete: if isMaster();
+      match /parts/{p} {
+        allow read: if signedIn();
+        allow create: if isMaster() || viaGoogle();
+        allow delete: if isMaster();
+      }
+    }
+
+    // Conversa privada: só o jogador dono do personagem e o mestre.
+    match /threads/{cid} {
+      allow read, write: if isMaster() || ownsChar(cid);
+      match /msgs/{m} {
+        allow read: if isMaster() || ownsChar(cid);
+        allow create: if isMaster()
+          || (ownsChar(cid) && request.resource.data.from == 'player' && request.resource.data.uid == request.auth.uid);
+        allow delete: if isMaster();
+      }
+    }
+
+    // Dados do mestre (já criptografados com a senha): só o mestre.
+    match /{col}/{d} {
+      allow read, write: if isMaster() && col in ['mnpcs', 'mrefs', 'marchive', 'mnotes'];
+    }
+  }
+}

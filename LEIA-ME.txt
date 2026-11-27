@@ -1,0 +1,45 @@
+TRIARBORIUM · SITE DO GRUPO (Firebase + Netlify, gratuito)
+
+O QUE É
+- index.html: o painel (Grupo + Área do Mestre com senha + overlays do OBS).
+- assets/: retratos, referências e molduras dos overlays.
+- seed.json: os dados atuais (fichas, NPCs, referências, arquivo, notas). São enviados
+  automaticamente para o banco na primeira vez que o site abre com um banco vazio.
+- firebase-config.js: onde vai a configuração do SEU projeto Firebase.
+- regras-firestore.txt: as regras de segurança para colar no Firestore.
+
+1) FIREBASE (banco de dados ao vivo)
+  a. Acesse https://console.firebase.google.com e entre com uma conta Google.
+  b. "Criar um projeto" → nome (ex.: triarborium) → pode desativar o Google Analytics → Criar.
+  c. Menu Criação (Build) → Authentication → Vamos começar → aba "Método de login"
+     → Anônimo → Ativar → Salvar.
+  d. Menu Criação → Firestore Database → Criar banco de dados → local
+     southamerica-east1 (São Paulo) → "Iniciar no modo de produção" → Criar.
+  e. Na aba "Regras" do Firestore, apague tudo, cole o conteúdo de regras-firestore.txt
+     e clique em Publicar.
+  f. Engrenagem (Configurações do projeto) → em "Seus apps" clique no ícone </> (Web)
+     → apelido qualquer → Registrar app (não marque Hosting).
+  g. Copie o bloco "const firebaseConfig = { ... }" e mande para o Claude, ou cole em
+     firebase-config.js trocando "null" pelo objeto (window.FIREBASE_CONFIG = { ... };).
+  Plano Spark (gratuito): não precisa de cartão.
+
+2) NETLIFY (hospedar o site)
+  a. Crie uma conta grátis em https://app.netlify.com (pode entrar com Google/GitHub).
+  b. Add new site → Deploy manually → arraste esta pasta inteira (triarborium-site).
+  c. O Netlify dá um link tipo https://nome-aleatorio.netlify.app — esse é o link da mesa.
+     Em Site configuration → Change site name dá para trocar o nome.
+  d. No Firebase: Authentication → Configurações → Domínios autorizados → Adicionar
+     domínio → cole o domínio do Netlify (sem https://).
+  Para atualizar o site depois: Deploys → arraste a pasta de novo.
+
+3) USO
+- Jogadores: abrem o link, sem login.
+- Mestre: botão "Área do Mestre" → senha 123321.
+- OBS: Fonte de navegador, 1920x1080, com os links da aba "Overlays (OBS)"
+  (link do site + #overlay, #overlay-npcs, #overlay-referencias). Sem login.
+
+OBSERVAÇÕES
+- Qualquer pessoa com o link consegue editar as fichas. Os dados do mestre ficam
+  criptografados com a senha.
+- Imagens novas (retratos, referências) não sobem pelo site no plano grátis: coloque
+  o arquivo na pasta assets/ e peça ao Claude para cadastrar, depois reenvie a pasta.
