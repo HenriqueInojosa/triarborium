@@ -110,7 +110,7 @@ export function renderPlayer(){
       <h1 class="kz-title">Sombras de Karazhan</h1>
       <div class="kz-orn"><span>◆</span></div>
       <button class="kz-btn" data-login><span class="kz-btn-main">Atravessar o portão</span><span class="kz-btn-sub">Entrar com Google</span></button>
-      <p class="kz-fine">Só você e o mestre verão a sua ficha.</p></div>`));return}
+      </div>`));return}
   const mine=myPub();
   if(!mine){subscribeMine(null);pv.hidden=false;bar.hidden=true;lay.hidden=true;
     setPV(pv,kzScene(`<div class="kz-pick">
