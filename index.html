@@ -15,6 +15,13 @@
 @keyframes sceneGlow{0%,100%{box-shadow:0 0 0 1px #0008,0 12px 30px #000c,0 0 22px #d6ae6255,0 0 50px #a774ff33}50%{box-shadow:0 0 0 1px #0008,0 12px 30px #000c,0 0 36px #d6ae6299,0 0 80px #a774ff66}}
 @keyframes sceneIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.scene-frame,.scene-card{animation:none}}
+/* same size for every portrait, whatever the image proportions */
+.scene-row{align-items:flex-start}
+.scene-frame>img,.scene-frame>.ph{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px)}
+.scene-name{max-width:100%;text-align:center;line-height:1.2}
+.sc-card{align-self:flex-start}
+.sc-card .sc-pic{position:relative}
+.sc-card .sc-pic>img,.sc-card .sc-pic>.ph{position:absolute;inset:0}
 
 /* Área do Mestre: aba Em cena (arrastar para a cena) */
 .sc-wrap{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;align-items:start}
