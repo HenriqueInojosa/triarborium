@@ -5,6 +5,12 @@ name: Prévia no Firebase Hosting (pull requests)
 on:
   pull_request:
 
+# o action cria um check e comenta o link no PR
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
 jobs:
   preview:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
