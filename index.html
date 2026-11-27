@@ -701,7 +701,7 @@ function write(col,id,patch){
 const timers={};
 function writeLater(col,id,patch,key){clearTimeout(timers[key]);if(col==='mnotes')Object.assign(notesDoc,patch);else{const c=find(col,id);if(c)Object.assign(c,patch)}timers[key]=setTimeout(()=>write(col,id,patch),600)}
 async function create(col,id,doc){try{if(MASTER.has(col)){data[col].push({id,...doc});doc={...(await encObj(doc)),order:doc.order||0}}await db.collection(col).doc(id).set(doc);return true}catch(e){toast('Não foi possível criar ('+(e.code||'erro')+').');return false}}
-async function remove(col,id){try{await db.collection(col).doc(id).delete();if(col==='chars')await db.collection('public').doc(id).delete();if(col==='mnpcs'&&(ov().npcs||[]).some(n=>n.id===id))setOv({npcs:(ov().npcs||[]).filter(n=>n.id!==id)})}catch(e){toast('Não foi possível remover.')}}
+async function remove(col,id){try{await db.collection(col).doc(id).delete();if(col==='chars')await db.collection('public').doc(id).delete();if(col==='mnpcs'&&live.reveal&&live.reveal.id===id)write('session','live',{reveal:null});if(col==='mnpcs'&&(ov().npcs||[]).some(n=>n.id===id))setOv({npcs:(ov().npcs||[]).filter(n=>n.id!==id)})}catch(e){toast('Não foi possível remover.')}}
 
 /* ---------- region rendering that never clobbers a field being typed in ---------- */
 const pending={};
@@ -735,7 +735,7 @@ function sheetHTML(c,o){
         ${m?`<form class="row" data-fxform><input name="label" placeholder="Nome do efeito" maxlength="60" required aria-label="Nome do efeito"><select name="type" aria-label="Tipo"><option value="buff">Buff</option><option value="debuff">Debuff</option></select>${assets?'<input name="img" type="file" accept="image/*" aria-label="Imagem do efeito">':''}<button class="btn" type="submit">+ Adicionar efeito</button></form>`:''}</section>
       ${m?`<section class="box"><h4>${o.npc?'NPC':'Personagem'}</h4><div class="grid2"><label class="field">Nome<input data-mtext="name" value="${esc(c.name)}" maxlength="80"></label><label class="field">${o.npc?'Tipo':'Classe'}<input data-mtext="cls" value="${esc(c.cls)}" maxlength="80"></label></div>
         <div class="row">${assets?`<label class="btn">Trocar retrato<input type="file" accept="image/*" data-portrait hidden></label>`:''}
-        ${o.npc?`<button class="btn" data-act="reveal-npc">${(ov().npcs||[]).some(n=>n.id===c.id)?'Tirar de cena (overlay)':'Colocar em cena (overlay)'}</button>`:`<button class="btn" data-act="ov-show">${ov().selected===c.id?'📺 No overlay':'📺 Mostrar no overlay'}</button>`}
+        ${o.npc?`<button class="btn ${live.reveal&&live.reveal.id===c.id?'':'gold'}" data-act="show-npc">${live.reveal&&live.reveal.id===c.id?'Ocultar':'Mostrar'}</button><button class="btn" data-act="reveal-npc">${(ov().npcs||[]).some(n=>n.id===c.id)?'Tirar de cena (overlay)':'Colocar em cena (overlay)'}</button>`:`<button class="btn" data-act="ov-show">${ov().selected===c.id?'📺 No overlay':'📺 Mostrar no overlay'}</button>`}
         ${ui.confirm===c.id?`<div class="confirm">Remover ${esc(c.name)}? Isso não pode ser desfeito. <button class="btn danger" data-act="del-yes">Remover</button><button class="btn" data-act="del-no">Cancelar</button></div>`:`<button class="btn danger" data-act="del">Remover ${o.npc?'NPC':'personagem'}</button>`}</div></section>`:''}`;
   }
   if(tab==='skills'){
@@ -786,6 +786,7 @@ function wireSheet(el,ctx){
     else if(b.dataset.skilldel){write(col,c.id,{skills:(c.skills||[]).filter(s=>s.id!==b.dataset.skilldel)});re()}
     else if(b.dataset.act==='skill-add'){write(col,c.id,{skills:[...(c.skills||[]),{id:uid(),name:'Nova habilidade',description:'',dice:'',maxUses:1,usesLeft:1,playerNote:''}]});re()}
     else if(b.dataset.act==='skill-reset'){write(col,c.id,{skills:(c.skills||[]).map(s=>({...s,usesLeft:clamp(s.maxUses,1,99)}))});toast('Usos restaurados.');re()}
+    else if(b.dataset.act==='show-npc'){const on=live.reveal&&live.reveal.id===c.id;write('session','live',{reveal:on?null:{id:c.id,name:c.name||'NPC',description:c.cls||'',image:c.portrait||''}});toast(on?'NPC oculto dos jogadores.':'NPC mostrado aos jogadores.');renderLive();re()}
     else if(b.dataset.act==='reveal-npc'){const list=ov().npcs||[];const on=list.some(n=>n.id===c.id);setOv({npcs:on?list.filter(n=>n.id!==c.id):[...list,{id:c.id,name:c.name,portrait:c.portrait||''}]});toast(on?'NPC saiu de cena.':'NPC em cena.');renderLive();re()}
     else if(b.dataset.act==='ov-show'){setOv({selected:c.id,visible:true});toast('Mostrando '+c.name+' no overlay.');re()}
     else if(b.dataset.act==='del'){ui.confirm=c.id;x.rerender(true)}
@@ -805,7 +806,7 @@ function wireSheet(el,ctx){
   });
   el.addEventListener('change',async e=>{
     const x=ctx(),t=e.target;if(!x||!x.c||!x.m||!t.matches('[data-portrait]'))return;const f=t.files[0];t.value='';if(!f)return;
-    try{const r=await assets.upload(f);write(x.col,x.c.id,{portrait:r.id});if(x.col==='mnpcs'&&(ov().npcs||[]).some(n=>n.id===x.c.id)){setOv({npcs:(ov().npcs||[]).map(n=>n.id===x.c.id?{...n,portrait:r.id}:n)});renderLive()}toast('Retrato atualizado.');x.rerender(true)}catch(err){toast('Não foi possível enviar o retrato ('+(err&&err.code||'erro')+').')}
+    try{const r=await assets.upload(f);write(x.col,x.c.id,{portrait:r.id});if(x.col==='mnpcs'&&live.reveal&&live.reveal.id===x.c.id)write('session','live',{reveal:{...live.reveal,image:r.id}});if(x.col==='mnpcs'&&(ov().npcs||[]).some(n=>n.id===x.c.id)){setOv({npcs:(ov().npcs||[]).map(n=>n.id===x.c.id?{...n,portrait:r.id}:n)});renderLive()}toast('Retrato atualizado.');x.rerender(true)}catch(err){toast('Não foi possível enviar o retrato ('+(err&&err.code||'erro')+').')}
   });
   el.addEventListener('submit',async e=>{
     const x=ctx();if(!x||!x.c||!x.m||!e.target.matches('[data-fxform]'))return;e.preventDefault();
