@@ -1,0 +1,23 @@
+/* Em cena: palco com retratos grandes */
+.scene{position:relative;overflow:hidden;padding:18px 18px 22px;text-align:center;border-color:var(--line2);background:radial-gradient(ellipse at 50% 0%,#a774ff33,transparent 60%),radial-gradient(ellipse at 50% 100%,#d6ae6222,transparent 55%),linear-gradient(170deg,var(--panel2),var(--panel));box-shadow:0 0 0 1px #d6ae6233 inset,0 10px 40px #000a,0 0 40px #a774ff22}
+.scene>h2{font-size:26px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 16px;display:flex;align-items:center;justify-content:center;gap:14px}
+.scene>h2::before,.scene>h2::after{content:"";flex:0 1 120px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.scene>h2::after{background:linear-gradient(90deg,var(--gold),transparent)}
+.scene-row{display:flex;flex-wrap:wrap;justify-content:center;gap:22px}
+.scene-card{display:flex;flex-direction:column;align-items:center;gap:10px;width:clamp(150px,22vw,230px);animation:sceneIn .6s ease both}
+.scene-frame{position:relative;width:100%;aspect-ratio:3/4;border-radius:10px;padding:4px;background:linear-gradient(160deg,#fff1c8,#d6ae62 35%,#7a5222 70%,#e9c983);box-shadow:0 0 0 1px #0008,0 12px 30px #000c,0 0 28px #d6ae6266,0 0 60px #a774ff44;animation:sceneGlow 3.2s ease-in-out infinite}
+.scene-frame>img,.scene-frame>.ph{width:100%;height:100%;border-radius:7px;object-fit:cover;border:0;display:grid;place-items:center;font-size:64px;background:var(--inset)}
+.scene-frame::after{content:"";position:absolute;inset:4px;border-radius:7px;box-shadow:inset 0 0 30px #0009;pointer-events:none}
+.scene-name{font:700 20px var(--display);letter-spacing:.05em;color:var(--gold2);text-shadow:0 0 12px #d6ae6288,0 2px 2px #000}
+.scene.solo .scene-card{width:clamp(180px,32vw,300px)}
+.scene.solo .scene-name{font-size:24px}
+@keyframes sceneGlow{0%,100%{box-shadow:0 0 0 1px #0008,0 12px 30px #000c,0 0 22px #d6ae6255,0 0 50px #a774ff33}50%{box-shadow:0 0 0 1px #0008,0 12px 30px #000c,0 0 36px #d6ae6299,0 0 80px #a774ff66}}
+@keyframes sceneIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.scene-frame,.scene-card{animation:none}}
+/* same size for every portrait, whatever the image proportions */
+.scene-row{align-items:flex-start}
+.scene-frame>img,.scene-frame>.ph{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px)}
+.scene-name{max-width:100%;text-align:center;line-height:1.2}
+.sc-card{align-self:flex-start}
+.sc-card .sc-pic{position:relative}
+.sc-card .sc-pic>img,.sc-card .sc-pic>.ph{position:absolute;inset:0}

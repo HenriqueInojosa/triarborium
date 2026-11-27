@@ -1,0 +1,30 @@
+name: Prévia no Firebase Hosting (pull requests)
+
+# Cada PR ganha um link de prévia temporário (canal de prévia do Firebase, expira em 7 dias).
+# O site oficial (canal "live") não é alterado.
+on:
+  pull_request:
+
+# o action cria um check e comenta o link no PR
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci && npm run build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: triarborium-rpgs
+          expires: 7d

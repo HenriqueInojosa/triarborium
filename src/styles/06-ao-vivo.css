@@ -1,0 +1,11 @@
+/* live strip for players */
+.livebar{display:flex;flex-direction:column;gap:12px}
+.init{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px}
+.init .chip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--inset);border-radius:99px;padding:3px 10px 3px 3px;font-size:14px}
+.init .chip img,.init .chip .ph{width:26px;height:26px;border-radius:50%;object-fit:cover;font-size:12px;border:1px solid var(--line2)}
+.init .chip.now{border-color:var(--gold);background:var(--sel);color:var(--gold2);font-weight:700}
+.init .chip.npc{border-style:dashed}
+.init .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}
+.reveal{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px;padding:14px;align-items:center}
+.reveal img{width:100%;max-height:340px;object-fit:contain;border-radius:6px;background:#0005}
+.reveal h3{font:700 24px var(--display);color:var(--gold2);margin:0 0 6px}

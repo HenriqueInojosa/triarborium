@@ -1,0 +1,38 @@
+/* combat turn bar (livebar flattens so the bar can stick for the whole page) */
+#livebar{display:contents}
+.combat{position:sticky;top:max(8px,env(safe-area-inset-top,0px));z-index:20;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;padding:10px 14px;border:1px solid #8a6a3a;border-radius:12px;background:linear-gradient(180deg,#1c0d30f5,#0e0719f8);box-shadow:0 14px 40px #000c,0 0 0 3px #0c0614,inset 0 0 30px #7b3fd022}
+.combat.myturn{border-color:var(--gold);animation:myturn 1.6s ease-in-out infinite}
+.cbt-round{display:flex;flex-direction:column;align-items:center;justify-content:center;width:60px;height:60px;border-radius:50%;border:2px solid var(--gold);background:radial-gradient(circle at 50% 35%,#3a1d5c,#120a20);box-shadow:0 0 16px #a774ff55}
+.cbt-round small{font:600 9px var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.cbt-round b{font:700 22px/1 'Cinzel',serif;color:var(--gold2)}
+.cbt-track{display:flex;align-items:flex-end;gap:10px;overflow-x:auto;padding:22px 16px 8px;scrollbar-width:thin;min-width:0}
+.cbt{position:relative;flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;width:58px;transition:opacity .3s}
+.cbt-frame{display:block;width:52px;height:64px;border-radius:999px 999px 8px 8px;padding:2px;overflow:hidden;background:linear-gradient(180deg,#f3d592,#8a6430)}
+.cbt.foe .cbt-frame{background:linear-gradient(180deg,#ff9a9a,#7a1424)}
+.cbt-frame img,.cbt-frame .ph{display:grid;place-items:center;width:100%;height:100%;object-fit:cover;object-position:50% 18%;border-radius:999px 999px 6px 6px;background:#1a0d2b;font:700 20px 'Cinzel',serif;color:var(--gold);border:0}
+.cbt-name{font:600 11px/1.1 var(--body);color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbt-hp{display:block;width:44px;height:4px;border-radius:9px;background:#0a0512;overflow:hidden}
+.cbt-hp i{display:block;height:100%;background:linear-gradient(90deg,#8e2f45,#e0697f)}
+.cbt.done{opacity:.42;filter:grayscale(.65)}
+.cbt.now{width:82px}
+.cbt.now .cbt-frame{width:74px;height:92px;padding:3px;box-shadow:0 0 10px #f0c878aa,0 0 18px #a774ff55;animation:nowPulse 2s ease-in-out infinite}
+.cbt.foe.now .cbt-frame{box-shadow:0 0 10px #ff5b6eaa,0 0 18px #a774ff44}
+.cbt.now .cbt-name{color:var(--gold2);font-size:12.5px}
+.cbt.me .cbt-name{color:var(--arc)}
+.cbt-mark{position:absolute;top:-15px;color:var(--gold);font-size:12px;text-shadow:0 0 8px #f0c878}
+.cbt-n{position:absolute;top:0;right:-2px;min-width:20px;height:20px;border-radius:50%;background:#120a20;border:1px solid var(--gold);font:700 10px/18px var(--body);text-align:center;color:var(--gold2)}
+.cbt-now{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right;min-width:0}
+.cbt-now small{font:600 10px var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.cbt-now b{font:700 18px/1.1 'Cinzel',serif;color:var(--gold2);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.combat.myturn .cbt-now small{color:var(--gold)}
+@media(max-width:700px){.combat{grid-template-columns:auto minmax(0,1fr)}.cbt-now{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;text-align:left}}
+.cbt-splash{position:fixed;inset:0;z-index:60;display:grid;place-items:center;pointer-events:none;padding:16px;background:radial-gradient(ellipse at center,#0c0614dd 0%,#0c0614aa 40%,transparent 78%);animation:splashFade 2.7s ease forwards}
+.cbt-splash>div{text-align:center}
+.cbt-splash h2{margin:0;font:900 clamp(44px,10vw,112px)/1 'Cinzel Decorative','Cinzel',serif;letter-spacing:.02em;background:linear-gradient(180deg,#fff6dc 8%,#ecc57a 52%,#a06f2c 96%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 #1a0b2b) drop-shadow(0 0 30px #a774ffaa);animation:splashIn .6s cubic-bezier(.2,.9,.2,1.15) both}
+.cbt-splash.fight h2{background-image:linear-gradient(180deg,#ffe8e8 8%,#ff7a7a 50%,#8e1426 96%);filter:drop-shadow(0 4px 0 #1a0b2b) drop-shadow(0 0 34px #ff3b5caa)}
+.cbt-splash p{margin:12px 0 0;font:italic 500 clamp(18px,3vw,28px) 'Cormorant Garamond',Georgia,serif;color:#eee3ff;text-shadow:0 2px 8px #000}
+@keyframes splashIn{from{opacity:0;transform:scale(1.35)}to{opacity:1;transform:scale(1)}}
+@keyframes splashFade{0%,78%{opacity:1}100%{opacity:0}}
+@keyframes nowPulse{50%{box-shadow:0 0 14px #f0c878dd,0 0 22px #a774ff88}}
+@keyframes myturn{50%{box-shadow:0 14px 40px #000c,0 0 0 3px #0c0614,0 0 44px #f0c878aa}}
+@media(prefers-reduced-motion:reduce){.cbt-splash,.cbt-splash h2,.cbt.now .cbt-frame,.combat.myturn{animation:none}}
